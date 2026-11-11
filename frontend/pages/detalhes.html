@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title> Detalhes do Objeto | Achados e Perdidos  </title>
+
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1> Achados e Perdidos </h1>
+    </header>
+
+    <main>
+        <section>
+            <h2> Detalhes do Objeto </h2>
+
+            <div id="detalhesObjeto">
+                <p> Carregando informações... </p>
+            </div>
+
+            <div id="secaoDevolucao" class="oculto">
+                <h3> Solicitar Devolução </h3>
+
+                <form id="formDevolucao">
+                    <label for="nomeSolicitante"> Seu nome: </label>
+                    <input
+                        type="text"
+                        id="nomeSolicitante"
+                        name="nome"
+                        placeholder="Ex: Darkiane"
+                        required
+                    >
+
+                    <label for="emailSolicitante"> Seu e-mail: </label>
+                    <input 
+                        type="text"
+                        id="emailSolicitante"
+                        nome="email"
+                        placeholder="darkinham24@discente.ifpe.edu.br"
+                        required
+                    >
+
+                    <label id="comprovacao"> Como podemos identificar que o objeto pertence a você? </label>
+                    <textarea
+                        id="comprovacao"
+                        name="comprovacao"
+                        rows="4"
+                        placeholder="Descreva características do objeto que comprovem que ele pertence a você."
+                        required
+                    ></textarea>
+
+                    <button type="submit"> Enviar Solicitação </button>
+                </form>
+            </div>
+
+            <a href="../index.html" class="botao">
+                Voltar à página inicial
+            </a>
+        </section>
+    </main>
+
+    <script src="../js/detalhes.js"></script>
+</body>
+</html>
