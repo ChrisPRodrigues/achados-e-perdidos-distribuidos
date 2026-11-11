@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Buscar Objeto | Achados e Perdidos </title>
+
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1> Achados e Perdidos </h1>
+    </header>
+
+    <main>
+        <section>
+            <h2> Buscar Objeto Perdido </h2>
+            <p>Informe as características do objeto perdido.</p>
+
+            <form id="formBusca">
+                <label for="buscaNome">Nome do objeto:</label>
+                <input
+                    type="text"
+                    id="buscaNome"
+                    name="nome"
+                    placeholder="Ex: Mochila preta"
+                >
+
+                <label for="buscaCategoria">Categoria:</label>
+                <select id="buscaCategoria" name="categoria">
+                    <option value="">Todas as categorias</option>
+                    <option value="eletronicos">Eletrônicos</option>
+                    <option value="roupas">Roupas</option>
+                    <option value="documentos">Documentos</option>
+                    <option value="outros">Outros</option>
+                </select>
+
+                <label for="buscaLocal">Local:</label>
+                <input
+                    type="text"
+                    id="buscaLocal"
+                    name="local"
+                    placeholder="Ex: Biblioteca"
+                >
+
+                <button type="submit">Buscar objeto</button>
+            </form>
+
+            <h3>Resultados da busca</h3>
+            <div id="resultadosBusca"></div>
+
+            <a href="../index.html" class="botao">
+                Voltar à página inicial
+            </a>
+        </section>
+    </main>
+
+    <script src="../js/busca.js"></script>
+</body>
+</html>
