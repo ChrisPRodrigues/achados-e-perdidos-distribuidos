@@ -1,3 +1,4 @@
+
 const formBusca = document.getElementById("formBusca");
 const resultadosBusca = document.getElementById("resultadosBusca");
 
@@ -49,23 +50,86 @@ function exibirResultados(encontrados) {
         return;
     }
 
-    encontrados.forEach((objeto) => {
+    // Exibe os objetos mais recentes primeiro
+    [...encontrados].reverse().forEach((objeto) => {
+
+        // Cria o cartão do objeto
         const card = document.createElement("div");
         card.classList.add("card-objeto");
+
+        /* ==================================
+           FOTO DO OBJETO
+           ================================== */
+
+        if (
+            typeof objeto.foto === "string" &&
+            /^data:image\/(jpeg|png|webp);base64,/.test(objeto.foto)
+        ) {
+            const containerFoto = document.createElement("div");
+            containerFoto.classList.add("containerFoto");
+
+            const imagem = document.createElement("img");
+
+            imagem.src = objeto.foto;
+            imagem.alt = `Foto do objeto ${objeto.nome}`;
+            imagem.loading = "lazy";
+
+            // Remove a imagem caso ocorra algum erro
+            imagem.onerror = () => {
+                containerFoto.remove();
+                console.error(
+                    "Erro ao carregar a imagem:",
+                    objeto.nome
+                );
+            };
+
+            containerFoto.appendChild(imagem);
+            card.appendChild(containerFoto);
+        }
+
+        /* ==================================
+           INFORMAÇÕES DO OBJETO
+           ================================== */
 
         const titulo = document.createElement("h3");
         titulo.textContent = objeto.nome;
 
         const categoria = document.createElement("p");
-        categoria.textContent = `Categoria: ${objeto.categoria}`;
+        categoria.textContent =
+            `Categoria: ${objeto.categoria}`;
 
         const local = document.createElement("p");
-        local.textContent = `Local: ${objeto.local}`;
+        local.textContent =
+            `Local: ${objeto.local}`;
 
         const descricao = document.createElement("p");
-        descricao.textContent = objeto.descricao || "Sem descrição.";
+        descricao.textContent =
+            objeto.descricao || "Sem descrição.";
 
-        card.append(titulo, categoria, local, descricao);
+        /* ==================================
+           LINK PARA OS DETALHES
+           ================================== */
+
+        const linkDetalhes = document.createElement("a");
+
+        linkDetalhes.classList.add("botao");
+        linkDetalhes.textContent = "Ver detalhes";
+
+        linkDetalhes.href =
+            `detalhes.html?id=${encodeURIComponent(objeto.id)}`;
+
+        /* ==================================
+           MONTAGEM DO CARTÃO
+           ================================== */
+
+        card.append(
+            titulo,
+            categoria,
+            local,
+            descricao,
+            linkDetalhes
+        );
+
         resultadosBusca.appendChild(card);
     });
 }
