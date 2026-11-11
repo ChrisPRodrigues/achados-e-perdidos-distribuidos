@@ -1,3 +1,4 @@
+
 const detalhesObjeto = document.getElementById("detalhesObjeto");
 const secaoDevolucao = document.getElementById("secaoDevolucao");
 const formDevolucao = document.getElementById("formDevolucao");
@@ -17,6 +18,35 @@ const objeto = objetos.find((item) => item.id === id);
 if (!objeto) {
     detalhesObjeto.textContent = "Objeto não encontrado.";
 } else {
+
+    /* ==================================
+       FOTO DO OBJETO
+       ================================== */
+
+    const containerFoto = document.createElement("div");
+    containerFoto.classList.add("foto-detalhes");
+
+    if (
+        typeof objeto.foto === "string" &&
+        /^data:image\/(jpeg|png|webp);base64,/.test(objeto.foto)
+    ) {
+        const imagem = document.createElement("img");
+
+        imagem.src = objeto.foto;
+        imagem.alt = `Foto do objeto ${objeto.nome}`;
+
+        imagem.onerror = () => {
+            containerFoto.remove();
+            console.error("Erro ao carregar a imagem.");
+        };
+
+        containerFoto.appendChild(imagem);
+    }
+
+    /* ==================================
+       INFORMAÇÕES DO OBJETO
+       ================================== */
+
     const titulo = document.createElement("h3");
     titulo.textContent = objeto.nome;
 
@@ -30,6 +60,10 @@ if (!objeto) {
     descricao.textContent =
         `Descrição: ${objeto.descricao || "Sem descrição."}`;
 
+    /* ==================================
+       SOLICITAÇÃO DE DEVOLUÇÃO
+       ================================== */
+
     const btnSolicitar = document.createElement("button");
     btnSolicitar.textContent = "Solicitar devolução";
 
@@ -40,21 +74,16 @@ if (!objeto) {
     formDevolucao.addEventListener("submit", (evento) => {
         evento.preventDefault();
 
-        if (!objeto) {
-            alert("Objeto não encontrado.")
-            return;
-        }
-
         const dados = new FormData(formDevolucao);
         const solicitacao = Object.fromEntries(dados.entries());
 
         solicitacao.id = crypto.randomUUID();
         solicitacao.objetoId = objeto.id;
-        solicitacao.statua = "pendente";
+        solicitacao.status = "pendente";
         solicitacao.data = new Date().toISOString();
 
         const solicitacoes = JSON.parse(
-            localStorage.getItem("solicitações")
+            localStorage.getItem("solicitacoes")
         ) || [];
 
         solicitacoes.push(solicitacao);
@@ -70,8 +99,13 @@ if (!objeto) {
         secaoDevolucao.classList.add("oculto");
     });
 
+    /* ==================================
+       MONTAGEM DOS DETALHES
+       ================================== */
+
     detalhesObjeto.replaceChildren(
         titulo,
+        containerFoto,
         categoria,
         local,
         descricao,
