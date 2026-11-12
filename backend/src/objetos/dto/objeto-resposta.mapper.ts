@@ -1,3 +1,4 @@
+
 import type { ObjetoEntity } from '../entities/objeto.entity.js';
 import type { ObjetoRespostaDto } from './objeto-resposta.dto.js';
 
@@ -8,6 +9,7 @@ export function paraObjetoResposta(
     id: objeto.id,
     nome: objeto.nome,
     descricao: objeto.descricao,
+    foto: objeto.foto,
     categoriaId: objeto.categoria.id,
     localId: objeto.localEncontrado.id,
     usuarioId: objeto.usuario.id,

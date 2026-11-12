@@ -1,5 +1,4 @@
 
-
 import {
   Body,
   Controller,
@@ -31,7 +30,9 @@ export class SolicitacaoController {
       id: solicitacao.id,
       usuarioId: solicitacao.usuarioId,
       objetoId: solicitacao.objetoId,
+      comprovacao: solicitacao.comprovacao,
       status: solicitacao.status,
+      createdAt: solicitacao.createdAt,
     };
   }
 

@@ -1,37 +1,128 @@
-/* ==========================================
-   1. ELEMENTOS DO HTML
-   ========================================== */
+
+const API = "http://localhost:3000";
 
 const formCadastro = document.getElementById("formCadastro");
-
 const inputFoto = document.getElementById("foto");
 const previewFoto = document.getElementById("previewFoto");
 
-// Guarda a URL temporária da prévia
+const campoCategoria = document.getElementById("categoria");
+const campoLocal = document.getElementById("local");
+
 let urlTemporaria = null;
 
+// Carrega categorias, locais e docentes da API.
+async function carregarOpcoes() {
+    try {
+        const [categoriasResposta, locaisResposta, usuariosResposta] =
+            await Promise.all([
+                fetch(`${API}/categorias`),
+                fetch(`${API}/locais`),
+                fetch(`${API}/usuarios`)
+            ]);
 
-/* ==========================================
-   2. PRÉVIA DA IMAGEM
-   ========================================== */
+        if (
+            !categoriasResposta.ok ||
+            !locaisResposta.ok ||
+            !usuariosResposta.ok
+        ) {
+            throw new Error("Não foi possível carregar os dados da API.");
+        }
 
+        const categorias = await categoriasResposta.json();
+        const locais = await locaisResposta.json();
+        const usuarios = await usuariosResposta.json();
+
+        campoCategoria.replaceChildren(
+            new Option("Selecione uma categoria", "")
+        );
+
+        categorias.forEach(categoria => {
+            campoCategoria.add(
+                new Option(categoria.nome, categoria.id)
+            );
+        });
+
+        campoLocal.replaceChildren(
+            new Option("Selecione um local", "")
+        );
+
+        locais.forEach(local => {
+            campoLocal.add(
+                new Option(local.nome, local.id)
+            );
+        });
+
+        const docentes = usuarios.filter(
+            usuario => usuario.tipo === "docente"
+        );
+
+        let campoUsuario = document.getElementById("usuarioId");
+
+        if (!campoUsuario) {
+            const label = document.createElement("label");
+            label.htmlFor = "usuarioId";
+            label.textContent = "Docente responsável:";
+
+            campoUsuario = document.createElement("select");
+            campoUsuario.id = "usuarioId";
+            campoUsuario.name = "usuarioId";
+            campoUsuario.required = true;
+
+            campoUsuario.add(
+                new Option("Selecione um docente", "")
+            );
+
+            const botao = formCadastro.querySelector(
+                'button[type="submit"]'
+            );
+
+            formCadastro.insertBefore(label, botao);
+            formCadastro.insertBefore(campoUsuario, botao);
+        }
+
+        campoUsuario.replaceChildren(
+            new Option("Selecione um docente", "")
+        );
+
+        docentes.forEach(usuario => {
+            campoUsuario.add(
+                new Option(
+                    `${usuario.nome} (${usuario.email})`,
+                    usuario.id
+                )
+            );
+        });
+
+        if (docentes.length === 0) {
+            alert(
+                "Não há docentes cadastrados. Cadastre um docente na API antes de cadastrar objetos."
+            );
+        }
+
+    } catch (erro) {
+        console.error(erro);
+
+        alert(
+            "Erro ao carregar categorias, locais e docentes. Verifique se o backend está funcionando."
+        );
+    }
+}
+
+// Prévia da imagem.
 inputFoto.addEventListener("change", () => {
     const arquivo = inputFoto.files[0];
 
-    // Libera a URL da imagem anterior
     if (urlTemporaria) {
         URL.revokeObjectURL(urlTemporaria);
         urlTemporaria = null;
     }
 
-    // Esconde a prévia se nenhuma imagem foi selecionada
     if (!arquivo) {
         previewFoto.classList.add("oculto");
         previewFoto.removeAttribute("src");
         return;
     }
 
-    // Verifica o formato da imagem
     const formatosPermitidos = [
         "image/jpeg",
         "image/png",
@@ -47,19 +138,12 @@ inputFoto.addEventListener("change", () => {
         return;
     }
 
-    // Cria a URL temporária para exibir a imagem
     urlTemporaria = URL.createObjectURL(arquivo);
-
     previewFoto.src = urlTemporaria;
     previewFoto.classList.remove("oculto");
 });
 
-
-/* ==========================================
-   3. PROCESSAMENTO DA IMAGEM
-   ========================================== */
-
-// Redimensiona e converte a imagem para Base64
+// Redimensiona e converte a imagem para Base64.
 function processarImagem(arquivo) {
     return new Promise((resolve, reject) => {
         const leitor = new FileReader();
@@ -68,171 +152,131 @@ function processarImagem(arquivo) {
             const imagem = new Image();
 
             imagem.onload = () => {
-                try {
-                    const larguraMaxima = 800;
-                    const alturaMaxima = 600;
+                const escala = Math.min(
+                    800 / imagem.width,
+                    600 / imagem.height,
+                    1
+                );
 
-                    // Calcula a escala sem deformar a imagem
-                    const escala = Math.min(
-                        larguraMaxima / imagem.width,
-                        alturaMaxima / imagem.height,
-                        1
-                    );
+                const canvas = document.createElement("canvas");
 
-                    const largura = Math.max(
-                        1,
-                        Math.round(imagem.width * escala)
-                    );
+                canvas.width = Math.max(
+                    1,
+                    Math.round(imagem.width * escala)
+                );
 
-                    const altura = Math.max(
-                        1,
-                        Math.round(imagem.height * escala)
-                    );
+                canvas.height = Math.max(
+                    1,
+                    Math.round(imagem.height * escala)
+                );
 
-                    // Cria o canvas
-                    const canvas = document.createElement("canvas");
+                const contexto = canvas.getContext("2d");
 
-                    canvas.width = largura;
-                    canvas.height = altura;
-
-                    const contexto = canvas.getContext("2d");
-
-                    if (!contexto) {
-                        reject(new Error("Canvas indisponível."));
-                        return;
-                    }
-
-                    // Fundo branco para imagens com transparência
-                    contexto.fillStyle = "#ffffff";
-                    contexto.fillRect(0, 0, largura, altura);
-
-                    // Desenha a imagem redimensionada
-                    contexto.drawImage(
-                        imagem,
-                        0,
-                        0,
-                        largura,
-                        altura
-                    );
-
-                    // Converte para JPEG em Base64
-                    const imagemReduzida = canvas.toDataURL(
-                        "image/jpeg",
-                        0.7
-                    );
-
-                    resolve(imagemReduzida);
-
-                } catch (erro) {
-                    reject(erro);
+                if (!contexto) {
+                    reject(new Error("Canvas indisponível."));
+                    return;
                 }
+
+                contexto.fillStyle = "#ffffff";
+                contexto.fillRect(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+                contexto.drawImage(
+                    imagem,
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+                resolve(
+                    canvas.toDataURL("image/jpeg", 0.7)
+                );
             };
 
             imagem.onerror = () => {
-                reject(new Error("Não foi possível abrir a imagem."));
+                reject(new Error("Erro ao abrir imagem."));
             };
 
             imagem.src = leitor.result;
         };
 
         leitor.onerror = () => {
-            reject(new Error("Não foi possível ler o arquivo."));
+            reject(new Error("Erro ao ler imagem."));
         };
 
         leitor.readAsDataURL(arquivo);
     });
 }
 
-
-/* ==========================================
-   4. CADASTRO DO OBJETO
-   ========================================== */
-
-formCadastro.addEventListener("submit", async (evento) => {
+// Cadastro do objeto diretamente na API.
+formCadastro.addEventListener("submit", async evento => {
     evento.preventDefault();
 
-    const botaoSubmit = formCadastro.querySelector(
+    const botao = formCadastro.querySelector(
         'button[type="submit"]'
     );
 
-    // Evita envios duplicados
-    botaoSubmit.disabled = true;
-    botaoSubmit.textContent = "Cadastrando...";
+    botao.disabled = true;
+    botao.textContent = "Cadastrando...";
 
     try {
-        // Recupera os objetos existentes
-        const objetos = JSON.parse(
-            localStorage.getItem("objetos")
-        ) || [];
-
-        // Obtém os dados do formulário
         const dados = new FormData(formCadastro);
 
-        const objeto = {
-            nome: dados.get("nome").trim(),
-            categoria: dados.get("categoria"),
-            local: dados.get("local").trim(),
-            descricao: dados.get("descricao").trim(),
+        const arquivoFoto = inputFoto.files[0];
 
-            // Identificador único
-            id: crypto.randomUUID(),
+        const foto = arquivoFoto
+            ? await processarImagem(arquivoFoto)
+            : null;
 
-            // Data do cadastro
-            dataCadastro: new Date().toISOString(),
+        const resposta = await fetch(`${API}/objetos`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nome: dados.get("nome").trim(),
+                descricao:
+                    dados.get("descricao").trim() || "Sem descrição.",
+                foto,
+                categoriaId: Number(dados.get("categoria")),
+                localId: Number(dados.get("local")),
+                usuarioId: Number(dados.get("usuarioId")),
+                dataEncontrado: new Date().toISOString()
+            })
+        });
 
-            // Foto inicialmente vazia
-            foto: null
-        };
+        if (!resposta.ok) {
+            const erro = await resposta.json();
 
-        // Recupera a imagem selecionada
-        const arquivo = inputFoto.files[0];
-
-        // Processa a foto somente se uma foi selecionada
-        if (arquivo) {
-            objeto.foto = await processarImagem(arquivo);
+            throw new Error(
+                erro.message || "Erro ao cadastrar objeto."
+            );
         }
 
-        // Adiciona o novo objeto à lista
-        objetos.push(objeto);
+        alert("Objeto cadastrado com sucesso no banco de dados!");
 
-        // Salva os objetos no navegador
-        localStorage.setItem(
-            "objetos",
-            JSON.stringify(objetos)
-        );
-
-        alert("Objeto cadastrado com sucesso!");
-
-        // Retorna à página inicial
         window.location.href = "../index.html";
 
     } catch (erro) {
-        console.error("Erro ao cadastrar objeto:", erro);
+        console.error("Erro ao cadastrar:", erro);
 
-        if (erro.name === "QuotaExceededError") {
-            alert(
-                "O armazenamento do navegador está cheio. " +
-                "Tente utilizar uma imagem menor."
-            );
-        } else {
-            alert(
-                "Não foi possível cadastrar o objeto. " +
-                "Verifique o console para mais detalhes."
-            );
-        }
+        alert(
+            erro.message || "Não foi possível cadastrar o objeto."
+        );
 
     } finally {
-        botaoSubmit.disabled = false;
-        botaoSubmit.textContent = "Cadastrar objeto";
+        botao.disabled = false;
+        botao.textContent = "Cadastrar objeto";
     }
 });
 
+carregarOpcoes();
 
-/* ==========================================
-   5. LIBERAÇÃO DE RECURSOS
-   ========================================== */
-
-// Libera a URL temporária quando a página é fechada
 window.addEventListener("pagehide", () => {
     if (urlTemporaria) {
         URL.revokeObjectURL(urlTemporaria);
