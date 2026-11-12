@@ -1,11 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Cadastrar objeto | Achados e Perdidos</title>
-
     <link rel="stylesheet" href="../css/style.css">
 </head>
 
@@ -19,28 +18,14 @@
             <h2>Cadastrar objeto encontrado</h2>
 
             <form id="formCadastro">
-
-                <!-- Área de upload da foto -->
                 <div class="campoFoto">
-
                     <label for="foto" class="areaUpload">
-
-                        <span class="tituloUpload">
-                            Adicione uma foto do objeto
-                        </span>
-
+                        <span class="tituloUpload">Adicione uma foto do objeto</span>
                         <span class="descricaoUpload">
-                            Selecione uma imagem para facilitar
-                            a identificação do objeto.
+                            Selecione uma imagem para facilitar a identificação.
                         </span>
-
-                        <span class="botaoUpload">
-                            Escolher imagem
-                        </span>
-
-                        <span class="formatosUpload">
-                            PNG, JPG ou WebP
-                        </span>
+                        <span class="botaoUpload">Escolher imagem</span>
+                        <span class="formatosUpload">PNG, JPG ou WebP</span>
 
                         <input
                             type="file"
@@ -49,19 +34,15 @@
                             accept="image/png, image/jpeg, image/webp"
                             class="inputFoto"
                         >
-
                     </label>
 
-                    <!-- Prévia da imagem selecionada -->
                     <img
                         id="previewFoto"
                         alt="Prévia da foto selecionada"
                         class="oculto"
                     >
-
                 </div>
 
-                <!-- Nome do objeto -->
                 <label for="nome">Nome do objeto:</label>
                 <input
                     type="text"
@@ -71,45 +52,16 @@
                     required
                 >
 
-                <!-- Categoria -->
                 <label for="categoria">Categoria:</label>
-                <select
-                    id="categoria"
-                    name="categoria"
-                    required
-                >
-                    <option value="">
-                        Selecione uma categoria
-                    </option>
-
-                    <option value="eletronicos">
-                        Eletrônicos
-                    </option>
-
-                    <option value="roupas">
-                        Roupas
-                    </option>
-
-                    <option value="documentos">
-                        Documentos
-                    </option>
-
-                    <option value="outros">
-                        Outros
-                    </option>
+                <select id="categoria" name="categoria" required>
+                    <option value="">Carregando categorias...</option>
                 </select>
 
-                <!-- Local -->
                 <label for="local">Local encontrado:</label>
-                <input
-                    type="text"
-                    id="local"
-                    name="local"
-                    placeholder="Ex: Biblioteca"
-                    required
-                >
+                <select id="local" name="local" required>
+                    <option value="">Carregando locais...</option>
+                </select>
 
-                <!-- Descrição -->
                 <label for="descricao">Descrição:</label>
                 <textarea
                     id="descricao"
@@ -118,14 +70,9 @@
                     placeholder="Descreva o objeto encontrado"
                 ></textarea>
 
-                <!-- Enviar cadastro -->
-                <button type="submit">
-                    Cadastrar objeto
-                </button>
-
+                <button type="submit">Cadastrar objeto</button>
             </form>
 
-            <!-- Voltar à página inicial -->
             <a href="../index.html" class="botao">
                 Voltar à página inicial
             </a>

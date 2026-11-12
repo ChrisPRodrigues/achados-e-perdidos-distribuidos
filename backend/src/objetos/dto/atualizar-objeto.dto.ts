@@ -26,6 +26,11 @@ export class AtualizarObjetoDto {
   descricao?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(2000000)
+  foto?: string | null;
+
+  @IsOptional()
   @IsInt()
   @Min(1)
   categoriaId?: number;

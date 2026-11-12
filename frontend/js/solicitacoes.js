@@ -1,28 +1,11 @@
 
-/* ==========================================
-   1. ELEMENTOS DO HTML
-   ========================================== */
+const API = "http://localhost:3000";
 
 const listaSolicitacoes = document.getElementById(
     "listaSolicitacoes"
 );
 
-/* ==========================================
-   2. RECUPERAR DADOS
-   ========================================== */
-
-const solicitacoes = JSON.parse(
-    localStorage.getItem("solicitacoes")
-) || [];
-
-const objetos = JSON.parse(
-    localStorage.getItem("objetos")
-) || [];
-
-/* ==========================================
-   3. FORMATAR DATA
-   ========================================== */
-
+// Formata a data.
 function formatarData(data) {
     if (!data) return "Data não informada";
 
@@ -35,63 +18,87 @@ function formatarData(data) {
     return dataConvertida.toLocaleString("pt-BR");
 }
 
-/* ==========================================
-   4. EXIBIR SOLICITAÇÕES
-   ========================================== */
+// Busca os dados na API.
+async function carregarSolicitacoes() {
+    listaSolicitacoes.textContent = "Carregando solicitações...";
 
-function exibirSolicitacoes() {
+    try {
+        const [
+            solicitacoesResposta,
+            objetosResposta,
+            usuariosResposta
+        ] = await Promise.all([
+            fetch(`${API}/solicitacoes`),
+            fetch(`${API}/objetos`),
+            fetch(`${API}/usuarios`)
+        ]);
 
+        if (
+            !solicitacoesResposta.ok ||
+            !objetosResposta.ok ||
+            !usuariosResposta.ok
+        ) {
+            throw new Error("Não foi possível carregar as solicitações.");
+        }
+
+        const solicitacoes = await solicitacoesResposta.json();
+        const objetos = await objetosResposta.json();
+        const usuarios = await usuariosResposta.json();
+
+        exibirSolicitacoes(solicitacoes, objetos, usuarios);
+
+    } catch (erro) {
+        console.error("Erro ao carregar solicitações:", erro);
+
+        listaSolicitacoes.textContent =
+            "Erro ao carregar solicitações. Verifique se o servidor está funcionando.";
+    }
+}
+
+// Exibe as solicitações.
+function exibirSolicitacoes(solicitacoes, objetos, usuarios) {
     listaSolicitacoes.innerHTML = "";
 
-    if (solicitacoes.length === 0) {
+    if (!solicitacoes || solicitacoes.length === 0) {
         listaSolicitacoes.textContent =
             "Nenhuma solicitação de devolução encontrada.";
         return;
     }
 
-    // Exibe as solicitações mais recentes primeiro
-    [...solicitacoes].reverse().forEach((solicitacao) => {
+    [...solicitacoes].reverse().forEach(solicitacao => {
 
-        // Procura o objeto relacionado
         const objeto = objetos.find(
-            (item) => item.id === solicitacao.objetoId
+            item => Number(item.id) === Number(solicitacao.objetoId)
         );
 
-        // Cria o cartão
+        const usuario = usuarios.find(
+            item => Number(item.id) === Number(solicitacao.usuarioId)
+        );
+
         const card = document.createElement("div");
         card.classList.add("card-objeto", "card-solicitacao");
 
-        // Título
         const titulo = document.createElement("h3");
         titulo.textContent = objeto
             ? objeto.nome
             : "Objeto não encontrado";
 
-        // Solicitante
         const solicitante = document.createElement("p");
         solicitante.textContent =
-            `Solicitante: ${solicitacao.nome || "Não informado"}`;
+            `Solicitante: ${usuario?.nome || "Não informado"}`;
 
-        // E-mail
         const email = document.createElement("p");
         email.textContent =
-            `E-mail: ${solicitacao.email || "Não informado"}`;
+            `E-mail: ${usuario?.email || "Não informado"}`;
 
-        // Justificativa
         const justificativa = document.createElement("p");
         justificativa.textContent =
-            `Justificativa: ${
-                solicitacao.comprovacao || "Não informada"
-            }`;
+            `Comprovação: ${solicitacao.comprovacao || "Não informada."}`;
 
-        // Data
         const data = document.createElement("p");
-        data.textContent =
-            `Data: ${formatarData(solicitacao.data)}`;
+        data.textContent = `Data: ${formatarData(solicitacao.createdAt)}`;
 
-        // Status
         const status = document.createElement("p");
-
         const valorStatus = solicitacao.status || "pendente";
 
         status.textContent = `Status: ${valorStatus}`;
@@ -99,13 +106,12 @@ function exibirSolicitacoes() {
 
         if (valorStatus === "pendente") {
             status.classList.add("status-pendente");
-        } else if (valorStatus === "aprovado") {
+        } else if (valorStatus === "aprovada") {
             status.classList.add("status-aprovado");
-        } else if (valorStatus === "recusado") {
+        } else if (valorStatus === "recusada") {
             status.classList.add("status-recusado");
         }
 
-        // Link para detalhes do objeto
         const linkDetalhes = document.createElement("a");
         linkDetalhes.classList.add("botao");
         linkDetalhes.textContent = "Ver objeto";
@@ -117,7 +123,6 @@ function exibirSolicitacoes() {
             linkDetalhes.style.display = "none";
         }
 
-        // Montagem do cartão
         card.append(
             titulo,
             solicitante,
@@ -132,8 +137,4 @@ function exibirSolicitacoes() {
     });
 }
 
-/* ==========================================
-   5. INICIALIZAÇÃO
-   ========================================== */
-
-exibirSolicitacoes();
+carregarSolicitacoes();

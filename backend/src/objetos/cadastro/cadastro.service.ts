@@ -15,6 +15,7 @@ import { UsuarioEntity } from '../../usuarios/entities/usuario.entity.js';
 type DadosCadastroObjeto = {
   nome: string;
   descricao: string;
+  foto?: string;
   categoriaId: number;
   localId: number;
   usuarioId: number;
@@ -73,6 +74,7 @@ export class CadastroService {
     const objeto = this.objetosRepository.create({
       nome: dados.nome,
       descricao: dados.descricao,
+      foto: dados.foto ?? null,
       categoria,
       localEncontrado: local,
       usuario,
