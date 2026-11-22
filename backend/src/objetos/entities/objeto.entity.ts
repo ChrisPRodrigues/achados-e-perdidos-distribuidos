@@ -1,3 +1,4 @@
+
 import {
   Column,
   Entity,
@@ -21,7 +22,9 @@ export class ObjetoEntity {
   @Column({ type: 'text' })
   descricao: string;
 
-  // Impede excluir uma categoria que ainda possui objetos associados.
+  @Column({ type: 'text', nullable: true })
+  foto: string | null;
+
   @ManyToOne(() => CategoriaEntity, {
     nullable: false,
     onDelete: 'NO ACTION',
@@ -29,7 +32,6 @@ export class ObjetoEntity {
   @JoinColumn({ name: 'categoria_id' })
   categoria: CategoriaEntity;
 
-  // Impede excluir um local que ainda possui objetos associados.
   @ManyToOne(() => LocalEntity, {
     nullable: false,
     onDelete: 'NO ACTION',
@@ -37,7 +39,6 @@ export class ObjetoEntity {
   @JoinColumn({ name: 'local_id' })
   localEncontrado: LocalEntity;
 
-  // Impede excluir um usuário que ainda possui objetos associados.
   @ManyToOne(() => UsuarioEntity, {
     nullable: false,
     onDelete: 'NO ACTION',

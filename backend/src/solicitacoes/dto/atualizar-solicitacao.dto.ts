@@ -1,4 +1,12 @@
-import { IsIn, IsInt, IsOptional, Min } from 'class-validator';
+
+import {
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class AtualizarSolicitacaoDto {
   @IsOptional()
@@ -10,6 +18,11 @@ export class AtualizarSolicitacaoDto {
   @IsInt()
   @Min(1)
   objetoId?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  comprovacao?: string | null;
 
   @IsOptional()
   @IsIn(['pendente', 'aprovada', 'recusada'])

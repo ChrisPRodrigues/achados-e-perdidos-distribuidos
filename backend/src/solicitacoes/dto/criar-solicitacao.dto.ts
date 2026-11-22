@@ -1,4 +1,12 @@
-import { IsIn, IsInt, Min } from 'class-validator';
+
+import {
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class CriarSolicitacaoDto {
   @IsInt()
@@ -8,6 +16,11 @@ export class CriarSolicitacaoDto {
   @IsInt()
   @Min(1)
   objetoId: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  comprovacao?: string;
 
   @IsIn(['pendente', 'aprovada', 'recusada'])
   status: 'pendente' | 'aprovada' | 'recusada';

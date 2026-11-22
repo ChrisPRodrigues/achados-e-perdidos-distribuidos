@@ -1,7 +1,7 @@
 
 import {
   Injectable,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,6 +14,7 @@ import { DevolucaoService } from '../../devolucoes/devolucao.service.js';
 type DadosAtualizacaoObjeto = {
   nome?: string;
   descricao?: string;
+  foto?: string | null;
   categoriaId?: number;
   localId?: number;
   dataEncontrado?: Date;
@@ -48,6 +49,10 @@ export class GerenciamentoService {
       objeto.descricao = dados.descricao;
     }
 
+    if (dados.foto !== undefined) {
+      objeto.foto = dados.foto;
+    }
+
     if (dados.dataEncontrado !== undefined) {
       objeto.dataEncontrado = dados.dataEncontrado;
     }
@@ -70,7 +75,7 @@ export class GerenciamentoService {
       });
 
       if (!local) {
-        throw new NotFoundException('Local não encontrado');
+        throw new NotFoundException('Local não encontrada');
       }
 
       objeto.localEncontrado = local;
@@ -81,20 +86,19 @@ export class GerenciamentoService {
     return this.buscarObjeto(id);
   }
 
+  async devolver(
+    id: number,
+    usuarioId: number,
+    observacao?: string,
+  ): Promise<ObjetoEntity> {
+    await this.devolucoesService.adicionar({
+      objetoId: id,
+      usuarioId,
+      observacao,
+    });
 
-async devolver(
-  id: number,
-  usuarioId: number,
-  observacao?: string,
-): Promise<ObjetoEntity> {
-  await this.devolucoesService.adicionar({
-    objetoId: id,
-    usuarioId,
-    observacao,
-  });
-
-  return this.buscarObjeto(id);
-}
+    return this.buscarObjeto(id);
+  }
 
   private async buscarObjeto(id: number): Promise<ObjetoEntity> {
     const objeto = await this.objetosRepository.findOne({
