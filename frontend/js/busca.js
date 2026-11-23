@@ -1,5 +1,5 @@
 
-const API = "http://localhost:3000";
+const API = "https://achados-e-perdidos-distribuidos.onrender.com";
 
 const formBusca = document.getElementById("formBusca");
 const resultadosBusca = document.getElementById("resultadosBusca");
@@ -164,3 +164,4 @@ function exibirResultados(encontrados, mapaCategorias, mapaLocais) {
 }
 
 carregarDados();
+

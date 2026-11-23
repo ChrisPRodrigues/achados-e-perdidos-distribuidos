@@ -1,5 +1,5 @@
 
-const API = "http://localhost:3000";
+const API = "https://achados-e-perdidos-distribuidos.onrender.com";
 
 const detalhesObjeto = document.getElementById("detalhesObjeto");
 const secaoDevolucao = document.getElementById("secaoDevolucao");
@@ -184,3 +184,4 @@ formDevolucao.addEventListener("submit", async evento => {
 });
 
 carregarDetalhes();
+
