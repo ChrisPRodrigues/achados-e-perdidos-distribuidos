@@ -1,3 +1,4 @@
+
 import 'reflect-metadata';
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
@@ -8,18 +9,27 @@ import { LocalEntity } from './locais/entities/local.entity.js';
 import { ObjetoEntity } from './objetos/entities/objeto.entity.js';
 import { DevolucaoEntity } from './devolucoes/entities/devolucao.entity.js';
 
+const databaseUrl = process.env.DATABASE_URL;
+
 export default new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT ?? 5432),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
 
-  ssl:
-    process.env.DB_SSL === 'true'
-      ? { rejectUnauthorized: true }
-      : false,
+  ...(databaseUrl
+    ? {
+        url: databaseUrl,
+        ssl: { rejectUnauthorized: false },
+      }
+    : {
+        host: process.env.DB_HOST,
+        port: Number(process.env.DB_PORT ?? 5432),
+        username: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_DATABASE,
+        ssl:
+          process.env.DB_SSL === 'true'
+            ? { rejectUnauthorized: true }
+            : false,
+      }),
 
   entities: [
     UsuarioEntity,
