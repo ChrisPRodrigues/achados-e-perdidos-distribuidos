@@ -1,5 +1,5 @@
 
-const API = "http://localhost:3000";
+const API = "https://achados-e-perdidos-distribuidos.onrender.com";
 
 const listaSolicitacoes = document.getElementById(
     "listaSolicitacoes"
@@ -138,3 +138,4 @@ function exibirSolicitacoes(solicitacoes, objetos, usuarios) {
 }
 
 carregarSolicitacoes();
+

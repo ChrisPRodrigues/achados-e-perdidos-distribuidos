@@ -1,5 +1,5 @@
 
-const API = "http://localhost:3000";
+const API = "https://achados-e-perdidos-distribuidos.onrender.com";
 
 const formCadastro = document.getElementById("formCadastro");
 const inputFoto = document.getElementById("foto");
@@ -282,3 +282,4 @@ window.addEventListener("pagehide", () => {
         URL.revokeObjectURL(urlTemporaria);
     }
 });
+
