@@ -1,25 +1,33 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Buscar Objeto | Achados e Perdidos </title>
+
+    <title>Buscar Objeto | Achados e Perdidos</title>
 
     <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
     <header>
-        <h1> Achados e Perdidos </h1>
+        <h1>Achados e Perdidos</h1>
     </header>
 
     <main>
         <section>
-            <h2> Buscar Objeto Perdido </h2>
+            <h2>Buscar Objeto Perdido</h2>
+
             <p>Informe as características do objeto perdido.</p>
 
             <form id="formBusca">
-                <label for="buscaNome">Nome do objeto:</label>
+
+                <label for="buscaNome">
+                    Nome do objeto:
+                </label>
+
                 <input
                     type="text"
                     id="buscaNome"
@@ -27,28 +35,43 @@
                     placeholder="Ex: Mochila preta"
                 >
 
-                <label for="buscaCategoria">Categoria:</label>
-                <select id="buscaCategoria" name="categoria">
-                    <option value="">Todas as categorias</option>
-                    <option value="eletronicos">Eletrônicos</option>
-                    <option value="roupas">Roupas</option>
-                    <option value="documentos">Documentos</option>
-                    <option value="outros">Outros</option>
+                <label for="buscaCategoria">
+                    Categoria:
+                </label>
+
+                <select
+                    id="buscaCategoria"
+                    name="categoria"
+                >
+                    <option value="">
+                        Carregando categorias...
+                    </option>
                 </select>
 
-                <label for="buscaLocal">Local:</label>
-                <input
-                    type="text"
+                <label for="buscaLocal">
+                    Local:
+                </label>
+
+                <select
                     id="buscaLocal"
                     name="local"
-                    placeholder="Ex: Biblioteca"
                 >
+                    <option value="">
+                        Carregando locais...
+                    </option>
+                </select>
 
-                <button type="submit">Buscar objeto</button>
+                <button type="submit" disabled>
+                    Buscar objeto
+                </button>
+
             </form>
 
             <h3>Resultados da busca</h3>
-            <div id="resultadosBusca"></div>
+
+            <div id="resultadosBusca">
+                Carregando dados...
+            </div>
 
             <a href="../index.html" class="botao">
                 Voltar à página inicial
@@ -56,6 +79,8 @@
         </section>
     </main>
 
+    <script src="../js/api.js"></script>
     <script src="../js/busca.js"></script>
 </body>
+
 </html>

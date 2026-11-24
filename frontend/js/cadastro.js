@@ -1,36 +1,31 @@
 
-const API = "https://achados-e-perdidos-distribuidos.onrender.com";
-
 const formCadastro = document.getElementById("formCadastro");
 const inputFoto = document.getElementById("foto");
 const previewFoto = document.getElementById("previewFoto");
 
 const campoCategoria = document.getElementById("categoria");
 const campoLocal = document.getElementById("local");
+const campoUsuario = document.getElementById("usuarioId");
+
+const botaoCadastro = formCadastro.querySelector(
+    'button[type="submit"]'
+);
 
 let urlTemporaria = null;
+let opcoesCarregadas = false;
 
-// Carrega categorias, locais e docentes da API.
+// Carrega categorias, locais e docentes pela API.
 async function carregarOpcoes() {
+    botaoCadastro.disabled = true;
+    opcoesCarregadas = false;
+
     try {
-        const [categoriasResposta, locaisResposta, usuariosResposta] =
+        const [categorias, locais, usuarios] =
             await Promise.all([
-                fetch(`${API}/categorias`),
-                fetch(`${API}/locais`),
-                fetch(`${API}/usuarios`)
+                listarCategorias(),
+                listarLocais(),
+                listarUsuarios()
             ]);
-
-        if (
-            !categoriasResposta.ok ||
-            !locaisResposta.ok ||
-            !usuariosResposta.ok
-        ) {
-            throw new Error("Não foi possível carregar os dados da API.");
-        }
-
-        const categorias = await categoriasResposta.json();
-        const locais = await locaisResposta.json();
-        const usuarios = await usuariosResposta.json();
 
         campoCategoria.replaceChildren(
             new Option("Selecione uma categoria", "")
@@ -56,30 +51,6 @@ async function carregarOpcoes() {
             usuario => usuario.tipo === "docente"
         );
 
-        let campoUsuario = document.getElementById("usuarioId");
-
-        if (!campoUsuario) {
-            const label = document.createElement("label");
-            label.htmlFor = "usuarioId";
-            label.textContent = "Docente responsável:";
-
-            campoUsuario = document.createElement("select");
-            campoUsuario.id = "usuarioId";
-            campoUsuario.name = "usuarioId";
-            campoUsuario.required = true;
-
-            campoUsuario.add(
-                new Option("Selecione um docente", "")
-            );
-
-            const botao = formCadastro.querySelector(
-                'button[type="submit"]'
-            );
-
-            formCadastro.insertBefore(label, botao);
-            formCadastro.insertBefore(campoUsuario, botao);
-        }
-
         campoUsuario.replaceChildren(
             new Option("Selecione um docente", "")
         );
@@ -93,22 +64,37 @@ async function carregarOpcoes() {
             );
         });
 
-        if (docentes.length === 0) {
-            alert(
-                "Não há docentes cadastrados. Cadastre um docente na API antes de cadastrar objetos."
+        if (categorias.length === 0) {
+            throw new Error(
+                "Não existem categorias cadastradas."
             );
         }
 
+        if (locais.length === 0) {
+            throw new Error(
+                "Não existem locais cadastrados."
+            );
+        }
+
+        if (docentes.length === 0) {
+            throw new Error(
+                "Não existem docentes cadastrados."
+            );
+        }
+
+        opcoesCarregadas = true;
+        botaoCadastro.disabled = false;
+
     } catch (erro) {
-        console.error(erro);
+        console.error("Erro ao carregar opções:", erro);
 
         alert(
-            "Erro ao carregar categorias, locais e docentes. Verifique se o backend está funcionando."
+            `Não foi possível preparar o cadastro: ${erro.message}`
         );
     }
 }
 
-// Prévia da imagem.
+// Pré-visualização da imagem.
 inputFoto.addEventListener("change", () => {
     const arquivo = inputFoto.files[0];
 
@@ -152,50 +138,55 @@ function processarImagem(arquivo) {
             const imagem = new Image();
 
             imagem.onload = () => {
-                const escala = Math.min(
-                    800 / imagem.width,
-                    600 / imagem.height,
-                    1
-                );
+                try {
+                    const escala = Math.min(
+                        800 / imagem.width,
+                        600 / imagem.height,
+                        1
+                    );
 
-                const canvas = document.createElement("canvas");
+                    const canvas = document.createElement("canvas");
 
-                canvas.width = Math.max(
-                    1,
-                    Math.round(imagem.width * escala)
-                );
+                    canvas.width = Math.max(
+                        1,
+                        Math.round(imagem.width * escala)
+                    );
 
-                canvas.height = Math.max(
-                    1,
-                    Math.round(imagem.height * escala)
-                );
+                    canvas.height = Math.max(
+                        1,
+                        Math.round(imagem.height * escala)
+                    );
 
-                const contexto = canvas.getContext("2d");
+                    const contexto = canvas.getContext("2d");
 
-                if (!contexto) {
-                    reject(new Error("Canvas indisponível."));
-                    return;
+                    if (!contexto) {
+                        throw new Error("Canvas indisponível.");
+                    }
+
+                    contexto.fillStyle = "#ffffff";
+
+                    contexto.fillRect(
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height
+                    );
+
+                    contexto.drawImage(
+                        imagem,
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height
+                    );
+
+                    resolve(
+                        canvas.toDataURL("image/jpeg", 0.7)
+                    );
+
+                } catch (erro) {
+                    reject(erro);
                 }
-
-                contexto.fillStyle = "#ffffff";
-                contexto.fillRect(
-                    0,
-                    0,
-                    canvas.width,
-                    canvas.height
-                );
-
-                contexto.drawImage(
-                    imagem,
-                    0,
-                    0,
-                    canvas.width,
-                    canvas.height
-                );
-
-                resolve(
-                    canvas.toDataURL("image/jpeg", 0.7)
-                );
             };
 
             imagem.onerror = () => {
@@ -213,19 +204,43 @@ function processarImagem(arquivo) {
     });
 }
 
-// Cadastro do objeto diretamente na API.
+// Cadastro do objeto diretamente pela API.
 formCadastro.addEventListener("submit", async evento => {
     evento.preventDefault();
 
-    const botao = formCadastro.querySelector(
-        'button[type="submit"]'
-    );
+    if (!opcoesCarregadas) {
+        alert("Aguarde o carregamento das opções.");
+        return;
+    }
 
-    botao.disabled = true;
-    botao.textContent = "Cadastrando...";
+    botaoCadastro.disabled = true;
+    botaoCadastro.textContent = "Cadastrando...";
 
     try {
         const dados = new FormData(formCadastro);
+
+        const nome = dados.get("nome").trim();
+
+        const descricao =
+            dados.get("descricao").trim() || "Sem descrição.";
+
+        const categoriaId = Number(dados.get("categoria"));
+        const localId = Number(dados.get("local"));
+        const usuarioId = Number(dados.get("usuarioId"));
+
+        if (!nome || nome.length > 150) {
+            throw new Error(
+                "Informe um nome válido de até 150 caracteres."
+            );
+        }
+
+        const ids = [categoriaId, localId, usuarioId];
+
+        if (!ids.every(id => Number.isInteger(id) && id > 0)) {
+            throw new Error(
+                "Selecione uma categoria, um local e um docente."
+            );
+        }
 
         const arquivoFoto = inputFoto.files[0];
 
@@ -233,30 +248,27 @@ formCadastro.addEventListener("submit", async evento => {
             ? await processarImagem(arquivoFoto)
             : null;
 
-        const resposta = await fetch(`${API}/objetos`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                nome: dados.get("nome").trim(),
-                descricao:
-                    dados.get("descricao").trim() || "Sem descrição.",
-                foto,
-                categoriaId: Number(dados.get("categoria")),
-                localId: Number(dados.get("local")),
-                usuarioId: Number(dados.get("usuarioId")),
-                dataEncontrado: new Date().toISOString()
-            })
-        });
-
-        if (!resposta.ok) {
-            const erro = await resposta.json();
-
+        if (foto && foto.length > 2000000) {
             throw new Error(
-                erro.message || "Erro ao cadastrar objeto."
+                "A imagem ultrapassa o tamanho permitido."
             );
         }
+
+        const novoObjeto = {
+            nome,
+            descricao,
+            categoriaId,
+            localId,
+            usuarioId,
+            dataEncontrado: new Date().toISOString()
+        };
+
+        if (foto) {
+            novoObjeto.foto = foto;
+        }
+
+        // Utiliza a função centralizada do api.js.
+        await cadastrarObjeto(novoObjeto);
 
         alert("Objeto cadastrado com sucesso no banco de dados!");
 
@@ -270,8 +282,8 @@ formCadastro.addEventListener("submit", async evento => {
         );
 
     } finally {
-        botao.disabled = false;
-        botao.textContent = "Cadastrar objeto";
+        botaoCadastro.disabled = !opcoesCarregadas;
+        botaoCadastro.textContent = "Cadastrar objeto";
     }
 });
 
@@ -282,4 +294,3 @@ window.addEventListener("pagehide", () => {
         URL.revokeObjectURL(urlTemporaria);
     }
 });
-

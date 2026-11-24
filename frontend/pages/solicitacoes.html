@@ -4,8 +4,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Solicitações | Achados e Perdidos</title>
 
@@ -26,7 +29,9 @@
                 realizados pelos usuários.
             </p>
 
-            <div id="listaSolicitacoes"></div>
+            <div id="listaSolicitacoes">
+                <p>Carregando solicitações...</p>
+            </div>
 
             <a href="../index.html" class="botao">
                 Voltar à página inicial
@@ -34,6 +39,11 @@
         </section>
     </main>
 
+    <!-- Comunicação com a API -->
+    <script src="../js/api.js"></script>
+
+    <!-- Listagem das solicitações -->
     <script src="../js/solicitacoes.js"></script>
 </body>
+
 </html>
