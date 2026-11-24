@@ -1,37 +1,29 @@
 
-const API = "https://achados-e-perdidos-distribuidos.onrender.com";
-
 const listaObjetos = document.getElementById("listaObjetos");
 
 async function carregarObjetos() {
     listaObjetos.textContent = "Carregando objetos...";
 
     try {
-        const [objetosResposta, categoriasResposta, locaisResposta] =
+        const [objetos, categorias, locais] =
             await Promise.all([
-                fetch(`${API}/objetos`),
-                fetch(`${API}/categorias`),
-                fetch(`${API}/locais`)
+                listarObjetos(),
+                listarCategorias(),
+                listarLocais()
             ]);
 
-        if (
-            !objetosResposta.ok ||
-            !categoriasResposta.ok ||
-            !locaisResposta.ok
-        ) {
-            throw new Error("Não foi possível carregar os dados.");
-        }
-
-        const objetos = await objetosResposta.json();
-        const categorias = await categoriasResposta.json();
-        const locais = await locaisResposta.json();
-
         const mapaCategorias = new Map(
-            categorias.map(item => [Number(item.id), item.nome])
+            categorias.map(item => [
+                Number(item.id),
+                item.nome
+            ])
         );
 
         const mapaLocais = new Map(
-            locais.map(item => [Number(item.id), item.nome])
+            locais.map(item => [
+                Number(item.id),
+                item.nome
+            ])
         );
 
         exibirObjetos(objetos, mapaCategorias, mapaLocais);
@@ -40,7 +32,7 @@ async function carregarObjetos() {
         console.error("Erro ao carregar objetos:", erro);
 
         listaObjetos.textContent =
-            "Erro ao carregar objetos. Verifique se o servidor está funcionando.";
+            `Erro ao carregar objetos: ${erro.message}`;
     }
 }
 
@@ -108,4 +100,3 @@ function exibirObjetos(objetos, mapaCategorias, mapaLocais) {
 }
 
 carregarObjetos();
-
