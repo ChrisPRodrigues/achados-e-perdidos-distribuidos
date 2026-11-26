@@ -16,5 +16,11 @@ export class UsuarioEntity {
   email: string;
 
   @Column({ type: 'varchar', length: 20 })
-  tipo: 'aluno' | 'docente';
+  tipo: 'aluno' | 'docente' | 'admin';
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  senha_hash: string | null;
+
+  @Column({ type: 'varchar', length: 30, default: 'aguardando_senha' })
+  status: 'ativo' | 'pendente' | 'rejeitado' | 'aguardando_senha';
 }

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de usuários | Achados e Perdidos</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Achados e Perdidos</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Cadastro de alunos e docentes</h2>
+
+            <p>Preencha os dados para cadastrar um novo usuário.</p>
+
+            <form id="formUsuario">
+
+                <label for="nome">Nome completo:</label>
+                <input
+                    type="text"
+                    id="nome"
+                    name="nome"
+                    maxlength="150"
+                    placeholder="Digite o nome completo"
+                    required
+                >
+
+                <label for="email">E-mail:</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    maxlength="255"
+                    placeholder="Digite o e-mail"
+                    required
+                >
+
+                <label for="senha">Senha:</label>
+                <input
+                    type="password"
+                    id="senha"
+                    name="senha"
+                    minlength="8"
+                    maxlength="100"
+                    placeholder="Crie uma senha com pelo menos 8 caracteres"
+                    autocomplete="new-password"
+                    required
+                >
+
+                <label for="tipo">Tipo de usuário:</label>
+                <select id="tipo" name="tipo" required>
+                    <option value="">Selecione o tipo</option>
+                    <option value="aluno">Aluno</option>
+                    <option value="docente">Docente</option>
+                </select>
+
+                <button type="submit" id="botaoCadastrar">
+                    Cadastrar usuário
+                </button>
+            </form>
+
+            <p id="mensagemUsuario" aria-live="polite"></p>
+
+            <a href="../index.html" class="botao">
+                Voltar à página inicial
+            </a>
+        </section>
+    </main>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/usuarios.js"></script>
+</body>
+
+</html>

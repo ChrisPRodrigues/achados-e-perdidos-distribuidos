@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Painel administrativo | Achados e Perdidos</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+
+<body class="pagina-admin">
+
+    <header class="admin-cabecalho">
+        <div class="admin-cabecalho-conteudo">
+            <div class="admin-marca">
+                <div class="admin-marca-icone">A</div>
+
+                <div>
+                    <h1>Achados e Perdidos</h1>
+                    <p>IFPE Campus Palmares</p>
+                </div>
+            </div>
+
+            <span class="admin-identificacao">Painel administrativo</span>
+        </div>
+    </header>
+
+    <main class="admin-container">
+
+        <section class="admin-apresentacao">
+            <span class="admin-etiqueta">ÁREA RESTRITA</span>
+
+            <h2>Gerenciamento de usuários</h2>
+
+            <p>
+                Gerencie os cadastros do sistema e aprove os registros
+                de docentes do IFPE Campus Palmares.
+            </p>
+        </section>
+
+        <section class="admin-conteudo">
+
+            <div class="admin-titulo-secao">
+                <div>
+                    <h3>Usuários cadastrados</h3>
+                    <p>Consulte os usuários e acompanhe a situação dos cadastros.</p>
+                </div>
+
+                <span class="admin-icone-usuarios" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M16 21V19C16 16.79 14.21 15 12 15H6C3.79 15 2 16.79 2 19V21"
+                            stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" />
+                        <circle cx="9" cy="7" r="4"
+                            stroke="currentColor" stroke-width="1.8" />
+                        <path d="M20 8V14M17 11H23"
+                            stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" />
+                    </svg>
+                </span>
+            </div>
+
+            <div id="mensagemAdmin" class="admin-mensagem" aria-live="polite"></div>
+
+            <div class="admin-tabela-container">
+                <table class="admin-tabela">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listaUsuarios">
+                        <tr>
+                            <td colspan="5" class="admin-tabela-vazia">
+                                Carregando usuários...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="admin-acoes-rodape">
+                <a href="usuarios.html" class="admin-botao admin-botao-principal">
+                    Cadastrar usuário
+                </a>
+
+                <a href="../index.html" class="admin-botao admin-botao-secundario">
+                    Página inicial
+                </a>
+
+                <button type="button" id="botaoSair"
+                    class="admin-botao admin-botao-sair">
+                    Sair do painel
+                </button>
+            </div>
+
+        </section>
+
+        <footer class="admin-rodape">
+            <p>Achados e Perdidos — IFPE Campus Palmares</p>
+            <span>Área administrativa</span>
+        </footer>
+
+    </main>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/admin.js"></script>
+
+</body>
+</html>

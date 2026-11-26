@@ -1,115 +1,91 @@
-/* ==========================================
-   1. ELEMENTOS DO HTML
-   ========================================== */
 
 const listaObjetos = document.getElementById("listaObjetos");
 
+async function carregarObjetos() {
+    listaObjetos.textContent = "Carregando objetos...";
 
-/* ==========================================
-   2. RECUPERAR OBJETOS
-   ========================================== */
+    try {
+        const [objetos, categorias, locais] =
+            await Promise.all([
+                listarObjetos(),
+                listarCategorias(),
+                listarLocais()
+            ]);
 
-const objetos = JSON.parse(
-    localStorage.getItem("objetos")
-) || [];
+        const mapaCategorias = new Map(
+            categorias.map(item => [
+                Number(item.id),
+                item.nome
+            ])
+        );
 
+        const mapaLocais = new Map(
+            locais.map(item => [
+                Number(item.id),
+                item.nome
+            ])
+        );
 
-/* ==========================================
-   3. EXIBIR OBJETOS
-   ========================================== */
+        exibirObjetos(objetos, mapaCategorias, mapaLocais);
 
-function exibirObjetos() {
+    } catch (erro) {
+        console.error("Erro ao carregar objetos:", erro);
 
-    // Limpa a listagem antes de adicionar os cartões
+        listaObjetos.textContent =
+            `Erro ao carregar objetos: ${erro.message}`;
+    }
+}
+
+function exibirObjetos(objetos, mapaCategorias, mapaLocais) {
     listaObjetos.innerHTML = "";
 
-    // Verifica se existem objetos cadastrados
-    if (objetos.length === 0) {
+    if (!objetos || objetos.length === 0) {
         listaObjetos.textContent = "Nenhum objeto cadastrado.";
         return;
     }
 
-    // Exibe os objetos mais recentes primeiro
-    [...objetos].reverse().forEach((objeto) => {
-
-        // Cria o cartão do objeto
+    [...objetos].reverse().forEach(objeto => {
         const card = document.createElement("div");
         card.classList.add("card-objeto");
-
-        /* ==================================
-           FOTO DO OBJETO
-           ================================== */
 
         if (
             typeof objeto.foto === "string" &&
             /^data:image\/(jpeg|png|webp);base64,/.test(objeto.foto)
         ) {
-
-            // Cria um contêiner para a foto
             const containerFoto = document.createElement("div");
             containerFoto.classList.add("containerFoto");
 
-            // Cria a imagem
             const imagem = document.createElement("img");
-
             imagem.src = objeto.foto;
             imagem.alt = `Foto do objeto ${objeto.nome}`;
             imagem.loading = "lazy";
 
-            // Caso a imagem não possa ser carregada
-            imagem.onerror = () => {
-                containerFoto.remove();
-                console.error(
-                    "Erro ao carregar a imagem:",
-                    objeto.nome
-                );
-            };
+            imagem.onerror = () => containerFoto.remove();
 
-            // Adiciona a imagem ao contêiner
             containerFoto.appendChild(imagem);
-
-            // Adiciona o contêiner ao cartão
             card.appendChild(containerFoto);
         }
 
-        /* ==================================
-           INFORMAÇÕES DO OBJETO
-           ================================== */
-
-        // Nome
         const titulo = document.createElement("h3");
         titulo.textContent = objeto.nome;
 
-        // Categoria
         const categoria = document.createElement("p");
         categoria.textContent =
-            `Categoria: ${objeto.categoria}`;
+            `Categoria: ${mapaCategorias.get(Number(objeto.categoriaId)) || "Não informada"}`;
 
-        // Local
         const local = document.createElement("p");
         local.textContent =
-            `Local: ${objeto.local}`;
+            `Local: ${mapaLocais.get(Number(objeto.localId)) || "Não informado"}`;
 
-        // Descrição
         const descricao = document.createElement("p");
         descricao.textContent =
             objeto.descricao || "Sem descrição.";
 
-        /* ==================================
-           LINK PARA OS DETALHES
-           ================================== */
-
         const linkDetalhes = document.createElement("a");
-
         linkDetalhes.classList.add("botao");
         linkDetalhes.textContent = "Ver detalhes";
-
         linkDetalhes.href =
             `pages/detalhes.html?id=${encodeURIComponent(objeto.id)}`;
-
-        /* ==================================
-           MONTAGEM DO CARTÃO
-           ================================== */
 
         card.append(
             titulo,
@@ -119,14 +95,8 @@ function exibirObjetos() {
             linkDetalhes
         );
 
-        // Adiciona o cartão à listagem
         listaObjetos.appendChild(card);
     });
 }
 
-
-/* ==========================================
-   4. INICIALIZAÇÃO
-   ========================================== */
-
-exibirObjetos();
+carregarObjetos();

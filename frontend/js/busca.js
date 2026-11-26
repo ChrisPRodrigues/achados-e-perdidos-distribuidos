@@ -1,71 +1,203 @@
+
 const formBusca = document.getElementById("formBusca");
 const resultadosBusca = document.getElementById("resultadosBusca");
 
-// Recupera os objetos cadastrados
-const objetos = JSON.parse(
-    localStorage.getItem("objetos")
-) || [];
+const campoNome = document.getElementById("buscaNome");
+const campoCategoria = document.getElementById("buscaCategoria");
+const campoLocal = document.getElementById("buscaLocal");
 
-// Executa a busca quando o formulário é enviado
-formBusca.addEventListener("submit", (evento) => {
+const botaoBusca = formBusca.querySelector(
+    'button[type="submit"]'
+);
+
+let objetos = [];
+let categorias = [];
+let locais = [];
+let dadosCarregados = false;
+
+// Carrega os dados diretamente da API.
+async function carregarDados() {
+    resultadosBusca.textContent = "";
+    botaoBusca.disabled = true;
+    dadosCarregados = false;
+
+    try {
+        [objetos, categorias, locais] = await Promise.all([
+            listarObjetos(),
+            listarCategorias(),
+            listarLocais()
+        ]);
+
+        // Preenche as categorias do banco.
+        campoCategoria.replaceChildren(
+            new Option("Todas as categorias", "")
+        );
+
+        categorias.forEach(categoria => {
+            campoCategoria.add(
+                new Option(categoria.nome, categoria.id)
+            );
+        });
+
+        // Preenche os locais do banco.
+        campoLocal.replaceChildren(
+            new Option("Todos os locais", "")
+        );
+
+        locais.forEach(local => {
+            campoLocal.add(
+                new Option(local.nome, local.id)
+            );
+        });
+
+        dadosCarregados = true;
+        botaoBusca.disabled = false;
+
+        // Não exibe mensagem inicial após carregar os dados.
+        resultadosBusca.textContent = "";
+
+    } catch (erro) {
+        console.error("Erro ao carregar dados:", erro);
+
+        resultadosBusca.textContent =
+            `Erro ao carregar os dados: ${erro.message}`;
+    }
+}
+
+// Executa a busca utilizando os filtros.
+formBusca.addEventListener("submit", evento => {
     evento.preventDefault();
 
-    // Recupera os filtros preenchidos
-    const nome = document.getElementById("buscaNome")
-        .value.trim().toLowerCase();
+    if (!dadosCarregados) {
+        resultadosBusca.textContent =
+            "Os dados ainda não foram carregados.";
+        return;
+    }
 
-    const categoria = document.getElementById("buscaCategoria")
-        .value;
+    const nome = campoNome.value.trim().toLowerCase();
+    const categoriaId = campoCategoria.value;
+    const localId = campoLocal.value;
 
-    const local = document.getElementById("buscaLocal")
-        .value.trim().toLowerCase();
+    const mapaCategorias = new Map(
+        categorias.map(item => [
+            Number(item.id),
+            item.nome
+        ])
+    );
 
-    // Filtra os objetos cadastrados
-    const encontrados = objetos.filter((objeto) => {
-        const correspondeNome = objeto.nome
-            .toLowerCase().includes(nome);
+    const mapaLocais = new Map(
+        locais.map(item => [
+            Number(item.id),
+            item.nome
+        ])
+    );
+
+    const encontrados = objetos.filter(objeto => {
+        const nomeObjeto =
+            (objeto.nome || "").toLowerCase();
+
+        const correspondeNome =
+            nomeObjeto.includes(nome);
 
         const correspondeCategoria =
-            !categoria || objeto.categoria === categoria;
+            !categoriaId ||
+            Number(objeto.categoriaId) === Number(categoriaId);
 
-        const correspondeLocal = objeto.local
-            .toLowerCase().includes(local);
+        const correspondeLocal =
+            !localId ||
+            Number(objeto.localId) === Number(localId);
 
-        return correspondeNome &&
-               correspondeCategoria &&
-               correspondeLocal;
+        return (
+            correspondeNome &&
+            correspondeCategoria &&
+            correspondeLocal
+        );
     });
 
-    exibirResultados(encontrados);
+    exibirResultados(
+        encontrados,
+        mapaCategorias,
+        mapaLocais
+    );
 });
 
-// Exibe os objetos encontrados na pesquisa
-function exibirResultados(encontrados) {
+// Exibe os resultados da busca.
+function exibirResultados(
+    encontrados,
+    mapaCategorias,
+    mapaLocais
+) {
     resultadosBusca.innerHTML = "";
 
     if (encontrados.length === 0) {
         resultadosBusca.textContent =
             "Nenhum objeto encontrado com esses critérios.";
+
         return;
     }
 
-    encontrados.forEach((objeto) => {
+    [...encontrados].reverse().forEach(objeto => {
         const card = document.createElement("div");
         card.classList.add("card-objeto");
+
+        // Exibe a foto, caso exista.
+        if (
+            typeof objeto.foto === "string" &&
+            /^data:image\/(jpeg|png|webp);base64,/.test(objeto.foto)
+        ) {
+            const containerFoto =
+                document.createElement("div");
+
+            containerFoto.classList.add("containerFoto");
+
+            const imagem = document.createElement("img");
+
+            imagem.src = objeto.foto;
+            imagem.alt = `Foto do objeto ${objeto.nome}`;
+            imagem.loading = "lazy";
+
+            imagem.onerror = () => containerFoto.remove();
+
+            containerFoto.appendChild(imagem);
+            card.appendChild(containerFoto);
+        }
 
         const titulo = document.createElement("h3");
         titulo.textContent = objeto.nome;
 
         const categoria = document.createElement("p");
-        categoria.textContent = `Categoria: ${objeto.categoria}`;
+
+        categoria.textContent =
+            `Categoria: ${mapaCategorias.get(Number(objeto.categoriaId)) || "Não informada"}`;
 
         const local = document.createElement("p");
-        local.textContent = `Local: ${objeto.local}`;
+
+        local.textContent =
+            `Local: ${mapaLocais.get(Number(objeto.localId)) || "Não informado"}`;
 
         const descricao = document.createElement("p");
-        descricao.textContent = objeto.descricao || "Sem descrição.";
 
-        card.append(titulo, categoria, local, descricao);
+        descricao.textContent =
+            objeto.descricao || "Sem descrição.";
+
+        const linkDetalhes = document.createElement("a");
+
+        linkDetalhes.classList.add("botao");
+        linkDetalhes.textContent = "Ver detalhes";
+
+        linkDetalhes.href =
+            `detalhes.html?id=${encodeURIComponent(objeto.id)}`;
+
+        card.append(
+            titulo,
+            categoria,
+            local,
+            descricao,
+            linkDetalhes
+        );
+
         resultadosBusca.appendChild(card);
     });
 }
+
+carregarDados();

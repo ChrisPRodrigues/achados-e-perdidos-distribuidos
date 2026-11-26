@@ -1,6 +1,9 @@
 
-
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -9,7 +12,9 @@ import { UsuarioEntity } from '../usuarios/entities/usuario.entity.js';
 import { ObjetoEntity } from '../objetos/entities/objeto.entity.js';
 import type { Solicitacao } from './models/solicitacao/solicitacao.interface.js';
 
-type DadosSolicitacao = Omit<Solicitacao, 'id'>;
+type DadosSolicitacao = Omit<Solicitacao, 'id' | 'createdAt' | 'comprovacao'> & {
+  comprovacao?: string | null;
+};
 
 @Injectable()
 export class SolicitacaoService {
@@ -29,8 +34,40 @@ export class SolicitacaoService {
       id: entidade.id,
       usuarioId: entidade.usuario.id,
       objetoId: entidade.objeto.id,
+      comprovacao: entidade.comprovacao ?? null,
       status: entidade.status,
+      createdAt: entidade.createdAt,
     };
+  }
+
+  private async verificarSolicitacaoPendente(
+    usuarioId: number,
+    objetoId: number,
+    ignorarId?: number,
+  ): Promise<void> {
+    const consulta = this.solicitacoesRepository
+      .createQueryBuilder('solicitacao')
+      .innerJoin('solicitacao.usuario', 'usuario')
+      .innerJoin('solicitacao.objeto', 'objeto')
+      .where('usuario.id = :usuarioId', { usuarioId })
+      .andWhere('objeto.id = :objetoId', { objetoId })
+      .andWhere('solicitacao.status = :status', {
+        status: 'pendente',
+      });
+
+    if (ignorarId !== undefined) {
+      consulta.andWhere('solicitacao.id != :ignorarId', {
+        ignorarId,
+      });
+    }
+
+    const existente = await consulta.getOne();
+
+    if (existente) {
+      throw new ConflictException(
+        'Você já possui uma solicitação pendente para este objeto.',
+      );
+    }
   }
 
   private async buscarUsuario(id: number): Promise<UsuarioEntity> {
@@ -70,9 +107,17 @@ export class SolicitacaoService {
     const usuario = await this.buscarUsuario(dados.usuarioId);
     const objeto = await this.buscarObjeto(dados.objetoId);
 
+    if (dados.status === 'pendente') {
+      await this.verificarSolicitacaoPendente(
+        dados.usuarioId,
+        dados.objetoId,
+      );
+    }
+
     const solicitacao = this.solicitacoesRepository.create({
       usuario,
       objeto,
+      comprovacao: dados.comprovacao ?? null,
       status: dados.status,
     });
 
@@ -119,8 +164,20 @@ export class SolicitacaoService {
       solicitacao.objeto = await this.buscarObjeto(dados.objetoId);
     }
 
+    if (dados.comprovacao !== undefined) {
+      solicitacao.comprovacao = dados.comprovacao;
+    }
+
     if (dados.status !== undefined) {
       solicitacao.status = dados.status;
+    }
+
+    if (solicitacao.status === 'pendente') {
+      await this.verificarSolicitacaoPendente(
+        solicitacao.usuario.id,
+        solicitacao.objeto.id,
+        solicitacao.id,
+      );
     }
 
     const atualizada = await this.solicitacoesRepository.save(solicitacao);

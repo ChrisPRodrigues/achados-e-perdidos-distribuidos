@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gerenciar Solicitações | Achados e Perdidos</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        .acoes-solicitacao {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .acoes-solicitacao button {
+            margin: 0;
+        }
+
+        .botao-recusar {
+            background-color: #b02a37;
+        }
+
+        .botao-recusar:hover {
+            background-color: #842029;
+        }
+
+        .mensagem-gerenciamento {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Achados e Perdidos</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Gerenciar Solicitações</h2>
+
+            <p>
+                Consulte os pedidos de devolução e analise
+                as solicitações realizadas pelos usuários.
+            </p>
+
+            <div id="listaSolicitacoes">
+                <p>Carregando solicitações...</p>
+            </div>
+
+            <p
+                id="mensagemGerenciamento"
+                class="mensagem-gerenciamento"
+                aria-live="polite"
+            ></p>
+
+            <a href="../index.html" class="botao">
+                Voltar à página inicial
+            </a>
+        </section>
+    </main>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/solicitacoes.js"></script>
+</body>
+
+</html>

@@ -1,6 +1,7 @@
 
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -30,9 +31,22 @@ export class SolicitacaoEntity {
   objeto: ObjetoEntity;
 
   @Column({
+    type: 'text',
+    nullable: true,
+  })
+  comprovacao: string | null;
+
+  @Column({
     type: 'varchar',
     length: 20,
     default: 'pendente',
   })
   status: 'pendente' | 'aprovada' | 'recusada';
+
+  @CreateDateColumn({
+    name: 'created_at',
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
 }

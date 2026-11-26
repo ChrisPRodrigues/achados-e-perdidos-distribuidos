@@ -1,11 +1,11 @@
-
 import { Controller, Get } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ObjetoRespostaDto } from './dto/objeto-resposta.dto.js';
 
+import { ObjetoRespostaDto } from './dto/objeto-resposta.dto.js';
 import { ObjetoEntity } from './entities/objeto.entity.js';
 import { paraObjetoResposta } from './dto/objeto-resposta.mapper.js';
+import { Public } from '../auth/public.decorator.js';
 
 @Controller('objetos')
 export class ObjetosController {
@@ -14,6 +14,7 @@ export class ObjetosController {
     private readonly objetosRepository: Repository<ObjetoEntity>,
   ) {}
 
+  @Public()
   @Get()
   async listar(): Promise<ObjetoRespostaDto[]> {
     const objetos = await this.objetosRepository.find({

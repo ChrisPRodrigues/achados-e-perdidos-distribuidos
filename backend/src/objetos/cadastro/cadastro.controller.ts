@@ -5,6 +5,7 @@ import { ObjetoEntity } from '../entities/objeto.entity.js';
 import { CriarObjetoDto } from '../dto/criar-objeto.dto.js';
 import { ObjetoRespostaDto } from '../dto/objeto-resposta.dto.js';
 import { paraObjetoResposta } from '../dto/objeto-resposta.mapper.js';
+import { Public } from '../../auth/public.decorator.js';
 
 @Controller('objetos')
 export class CadastroController {
@@ -21,6 +22,7 @@ export class CadastroController {
     return paraObjetoResposta(novoObjeto);
   }
 
+  @Public()
   @Get(':id')
   async buscarPorId(
     @Param('id', ParseIntPipe) id: number,

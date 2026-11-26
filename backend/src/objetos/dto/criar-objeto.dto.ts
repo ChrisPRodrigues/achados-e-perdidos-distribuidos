@@ -4,6 +4,7 @@ import {
   IsDate,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -21,6 +22,11 @@ export class CriarObjetoDto {
   @IsNotEmpty()
   @Matches(/\S/)
   descricao: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000000)
+  foto?: string;
 
   @IsInt()
   @Min(1)
