@@ -4,7 +4,7 @@
 ======================================== */
 
 .pagina-inicial .apresentacao {
-    padding: 42px 32px;
+    padding: 32px;
 }
 
 .pagina-inicial .acoes-principais {
@@ -14,7 +14,7 @@
 
 .pagina-inicial .cartao-acao {
     min-height: 135px;
-    padding: 28px;
+    padding: 20px;
     gap: 20px;
     border: 2px solid #D5EBDD;
     border-radius: 16px;
@@ -62,6 +62,7 @@
 /* Botões da área de gerenciamento */
 
 .pagina-inicial .acoes-gerenciamento {
+    padding: 20px;
     gap: 24px;
     margin-top: 28px;
 }

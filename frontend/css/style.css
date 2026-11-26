@@ -973,6 +973,20 @@ textarea:focus-visible {
     outline-offset: 3px;
 }
 
+    button,
+    .botao,
+    .card-objeto,
+    #formCadastro .areaUpload,
+    .botaoUpload {
+        transition: none;
+    }
+
+    button:hover,
+    .botao:hover,
+    .card-objeto:hover,
+    #formCadastro .areaUpload:hover .botaoUpload {
+        transform: none;
+      
 @media (prefers-reduced-motion: reduce) {
 
     *,
