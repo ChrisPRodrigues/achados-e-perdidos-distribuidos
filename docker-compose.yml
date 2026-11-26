@@ -1,0 +1,53 @@
+
+services:
+  db:
+    image: postgres:17
+    container_name: achados-postgres-docker
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: achados_perdidos
+      POSTGRES_USER: achados
+      POSTGRES_PASSWORD: achados_local_2026
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U achados -d achados_perdidos"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: achados-backend-docker
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: achados
+      DB_PASSWORD: achados_local_2026
+      DB_DATABASE: achados_perdidos
+      DB_SSL: "false"
+      JWT_SECRET: "chave-local-docker-desenvolvimento-2026"
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: achados-frontend-docker
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
