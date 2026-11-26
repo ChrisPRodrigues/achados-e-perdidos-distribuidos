@@ -4,7 +4,7 @@
 
 Sistema web desenvolvido para o IFPE Campus Palmares, com o objetivo de facilitar o registro, a consulta e o gerenciamento de objetos perdidos e encontrados na instituição.
 
-O projeto utiliza NestJS no backend, com persistência de dados em PostgreSQL por meio do TypeORM.
+O projeto utiliza NestJS no backend, PostgreSQL para persistência de dados e TypeORM para mapeamento das entidades e gerenciamento das migrations.
 
 ## Tecnologias utilizadas
 
@@ -12,7 +12,8 @@ O projeto utiliza NestJS no backend, com persistência de dados em PostgreSQL po
 - TypeScript
 - PostgreSQL
 - TypeORM
-- Docker (opcional)
+- Docker e Docker Compose
+- Nginx
 - Vitest
 - Git e GitHub
 
@@ -21,7 +22,12 @@ O projeto utiliza NestJS no backend, com persistência de dados em PostgreSQL po
 - Cadastro, consulta e atualização de objetos.
 - Gerenciamento de categorias e locais.
 - Cadastro e gerenciamento de usuários.
-- Registro e gerenciamento de devoluções.
+- Autenticação com JWT.
+- Armazenamento seguro de senhas com hash.
+- Controle de acesso por perfil de usuário.
+- Aprovação e rejeição do cadastro de docentes.
+- Registro e gerenciamento de solicitações de devolução.
+- Gerenciamento de devoluções.
 - Validação de dados utilizando DTOs e `class-validator`.
 - Validação de relacionamentos entre registros.
 - Persistência de dados utilizando TypeORM.
@@ -31,58 +37,109 @@ O projeto utiliza NestJS no backend, com persistência de dados em PostgreSQL po
 
 O sistema utiliza PostgreSQL para armazenar os dados e TypeORM para mapear as entidades, estabelecer relacionamentos e gerenciar as migrations.
 
-As principais entidades do MVP são:
+As principais entidades são:
 
+- Usuário
 - Objeto
 - Categoria
 - Local
-- Usuário
+- Solicitação
 - Devolução
 
-As entidades possuem relacionamentos definidos para garantir a integridade referencial dos registros.
+Os relacionamentos utilizam identificadores UUID e restrições de integridade referencial.
 
-A integração de solicitações, comprovantes e históricos ao banco de dados ficará para etapas futuras.
+## Autenticação e controle de acesso
 
-## Validações
+O sistema utiliza autenticação baseada em JWT e controle de permissões conforme o perfil do usuário.
 
-O sistema utiliza DTOs com `class-validator` e um `ValidationPipe` global para validar os dados recebidos pelas rotas.
+Os principais perfis são:
 
-Entre as validações implementadas estão:
+- **Aluno:** pode consultar objetos e solicitar devoluções.
+- **Docente:** após aprovação, pode cadastrar objetos e gerenciar solicitações de devolução.
+- **Administrador:** pode gerenciar usuários e aprovar ou rejeitar cadastros de docentes.
 
-- Verificação de campos obrigatórios.
-- Validação de formatos e tipos de dados.
-- Rejeição de propriedades não permitidas.
-- Validação de identificadores numéricos.
-- Verificação da existência de registros relacionados.
-- Tratamento de situações de conflito e registros inexistentes.
+As rotas protegidas verificam a autenticação e as permissões antes de permitir as operações.
 
 ## Gerenciamento de devoluções
 
-O módulo de devoluções passou por correções para melhorar a integridade e a consistência dos dados.
+O módulo de devoluções possui regras para garantir a integridade e a consistência dos dados.
 
-As principais melhorias implementadas foram:
+Entre as funcionalidades implementadas estão:
 
-- Centralização das regras de devolução no `DevolucaoService`.
-- Utilização da mesma lógica de negócio em `POST /devolucoes` e `PATCH /objetos/:id/devolucao`.
 - Verificação da existência do objeto e do usuário.
 - Restrição do registro de devoluções a usuários do tipo docente.
 - Prevenção de devoluções duplicadas.
 - Utilização de transações do TypeORM.
-- Implementação de bloqueio pessimista para proteger alterações concorrentes.
+- Bloqueio pessimista para proteger alterações concorrentes.
 - Atualização do status do objeto para `devolvido`.
 - Inclusão do campo `observacao` nas devoluções.
-- Restrição das atualizações de devoluções ao campo `observacao`.
-- Restauração do status do objeto para `encontrado` quando uma devolução é excluída.
 
-As correções foram implementadas e verificadas por testes unitários. A execução completa com PostgreSQL ainda precisa ser validada.
+## Como executar com Docker
 
-## Como executar o projeto
+O projeto possui configuração Docker para executar o frontend, o backend e o banco de dados PostgreSQL em containers.
+
+### Pré-requisitos
+
+- Docker Desktop instalado e em execução.
+- Docker Compose.
+
+### Iniciar o projeto
+
+Na pasta principal do projeto, execute:
+
+```bash
+docker compose up -d --build
+```
+
+O comando constrói as imagens e inicia os containers do PostgreSQL, backend e frontend.
+
+### Executar as migrations
+
+Na primeira execução, após os containers iniciarem, execute:
+
+```bash
+docker compose exec backend npm run migration:run
+```
+
+Esse comando cria a estrutura do banco de dados e executa as migrations pendentes.
+
+### Acessar o sistema
+
+Após a inicialização, o sistema estará disponível em:
+
+- **Frontend:** http://localhost:8080
+- **Backend:** http://localhost:3000
+
+### Verificar as migrations
+
+Para consultar as migrations executadas:
+
+```bash
+docker compose exec backend npm run migration:show
+```
+
+As migrations executadas são identificadas com `[X]`.
+
+### Encerrar os containers
+
+Para parar e remover os containers, execute:
+
+```bash
+docker compose down
+```
+
+**Observação:** os dados do PostgreSQL são armazenados em um volume Docker, preservado mesmo após executar `docker compose down`. Para remover também os dados locais, seria necessário utilizar `docker compose down -v`.
+
+O banco utilizado pelo Docker é local e independente do banco PostgreSQL remoto utilizado pelo sistema publicado.
+
+## Execução sem Docker
+
+Também é possível executar o backend diretamente no ambiente local.
 
 ### Pré-requisitos
 
 - Node.js e npm.
-- PostgreSQL acessível, local ou remotamente.
-- Docker Desktop (opcional, caso o PostgreSQL seja executado em container).
+- PostgreSQL acessível.
 
 ### Instalação
 
@@ -100,60 +157,37 @@ As correções foram implementadas e verificadas por testes unitários. A execu�
 
 3. Configure as variáveis de ambiente de conexão com PostgreSQL no arquivo `.env`, conforme a configuração do projeto.
 
-4. Inicie o PostgreSQL e confirme que o banco está acessível.
-
-5. Execute as migrations pendentes:
+4. Execute as migrations pendentes:
 
    ```bash
    npm run migration:run
    ```
 
-6. Inicie a aplicação:
+5. Inicie a aplicação:
 
    ```bash
    npm run start:dev
    ```
 
-A aplicação ficará disponível em:
+A API ficará disponível em:
 
 http://localhost:3000
-
-**Observação:** a execução das migrations depende de uma conexão válida com PostgreSQL.
 
 ## Testes automatizados
 
 O projeto utiliza Vitest para executar testes automatizados.
 
-Para executar todos os testes:
+Para executar os testes:
 
 ```bash
 npm test
 ```
 
-Para verificar a compilação:
+Para verificar a compilação do backend:
 
 ```bash
 npm run build
 ```
-
-### Resultados obtidos
-
-Na execução de 25/10/2026, realizada durante as correções de consistência das devoluções, foram obtidos os seguintes resultados:
-
-| Arquivo | Testes aprovados |
-|---|---:|
-| devolucao.service.spec.ts | 5 |
-| gerenciamento.service.spec.ts | 5 |
-| gerenciamento.controller.spec.ts | 3 |
-| objetos.controller.spec.ts | 1 |
-| app.controller.spec.ts | 1 |
-| **Total** | **15** |
-
-**Resultado:** 15 testes aprovados, nenhuma falha.
-
-A compilação do projeto também foi concluída com sucesso.
-
-Para consultar o histórico de verificações, consulte o arquivo `TESTES.md`.
 
 ## Instituição
 
