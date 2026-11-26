@@ -3,6 +3,13 @@ const listaSolicitacoes = document.getElementById(
     "listaSolicitacoes"
 );
 
+const mensagemGerenciamento = document.getElementById(
+    "mensagemGerenciamento"
+);
+
+const usuarioLogado = obterUsuarioLogado();
+const podeGerenciar = usuarioLogado?.tipo === "docente";
+
 // Formata a data.
 function formatarData(data) {
     if (!data) {
@@ -18,7 +25,7 @@ function formatarData(data) {
     return dataConvertida.toLocaleString("pt-BR");
 }
 
-// Carrega as solicitações diretamente da API.
+// Carrega as solicitações.
 async function carregarSolicitacoes() {
     listaSolicitacoes.textContent =
         "Carregando solicitações...";
@@ -28,7 +35,14 @@ async function carregarSolicitacoes() {
             await Promise.all([
                 listarSolicitacoes(),
                 listarObjetos(),
-                listarUsuarios()
+                listarUsuarios().catch(erro => {
+                    console.warn(
+                        "Não foi possível carregar os usuários:",
+                        erro
+                    );
+
+                    return [];
+                })
             ]);
 
         const mapaObjetos = new Map(
@@ -62,7 +76,64 @@ async function carregarSolicitacoes() {
     }
 }
 
-// Exibe os pedidos de devolução.
+// Altera o status de uma solicitação.
+async function alterarStatusSolicitacao(
+    id,
+    status,
+    botoes
+) {
+    if (!podeGerenciar) {
+        mensagemGerenciamento.textContent =
+            "Somente docentes podem gerenciar solicitações.";
+
+        return;
+    }
+
+    const acao = status === "aprovada"
+        ? "aprovar"
+        : "recusar";
+
+    const confirmado = confirm(
+        `Tem certeza de que deseja ${acao} esta solicitação?`
+    );
+
+    if (!confirmado) {
+        return;
+    }
+
+    botoes.forEach(botao => {
+        botao.disabled = true;
+    });
+
+    mensagemGerenciamento.textContent =
+        "Atualizando solicitação...";
+
+    try {
+        await atualizarSolicitacao(id, { status });
+
+        mensagemGerenciamento.textContent =
+            status === "aprovada"
+                ? "Solicitação aprovada com sucesso!"
+                : "Solicitação recusada com sucesso!";
+
+        await carregarSolicitacoes();
+
+    } catch (erro) {
+        console.error(
+            "Erro ao atualizar solicitação:",
+            erro
+        );
+
+        mensagemGerenciamento.textContent =
+            `Não foi possível atualizar: ${erro.message}`;
+
+        botoes.forEach(botao => {
+            botao.disabled = false;
+        });
+    }
+}
+
+// Exibe as solicitações.
 function exibirSolicitacoes(
     solicitacoes,
     mapaObjetos,
@@ -70,7 +141,10 @@ function exibirSolicitacoes(
 ) {
     listaSolicitacoes.innerHTML = "";
 
-    if (!solicitacoes || solicitacoes.length === 0) {
+    if (
+        !Array.isArray(solicitacoes) ||
+        solicitacoes.length === 0
+    ) {
         listaSolicitacoes.textContent =
             "Nenhuma solicitação de devolução encontrada.";
 
@@ -78,7 +152,6 @@ function exibirSolicitacoes(
     }
 
     [...solicitacoes].reverse().forEach(solicitacao => {
-
         const objeto = mapaObjetos.get(
             Number(solicitacao.objetoId)
         );
@@ -94,41 +167,35 @@ function exibirSolicitacoes(
             "card-solicitacao"
         );
 
-        // Nome do objeto.
         const titulo = document.createElement("h3");
 
         titulo.textContent =
             objeto?.nome || "Objeto não encontrado";
 
-        // Nome do solicitante.
         const solicitante = document.createElement("p");
 
         solicitante.textContent =
             `Solicitante: ${usuario?.nome || "Não informado"}`;
 
-        // E-mail do solicitante.
         const email = document.createElement("p");
 
         email.textContent =
             `E-mail: ${usuario?.email || "Não informado"}`;
 
-        // Justificativa da devolução.
         const justificativa = document.createElement("p");
 
         justificativa.textContent =
             `Comprovação: ${solicitacao.comprovacao || "Não informada."}`;
 
-        // Data da solicitação.
         const data = document.createElement("p");
 
         data.textContent =
             `Data: ${formatarData(solicitacao.createdAt)}`;
 
-        // Status da solicitação.
-        const status = document.createElement("p");
-
         const valorStatus =
             solicitacao.status || "pendente";
+
+        const status = document.createElement("p");
 
         status.textContent = `Status: ${valorStatus}`;
 
@@ -136,10 +203,8 @@ function exibirSolicitacoes(
 
         if (valorStatus === "pendente") {
             status.classList.add("status-pendente");
-
         } else if (valorStatus === "aprovada") {
             status.classList.add("status-aprovado");
-
         } else if (valorStatus === "recusada") {
             status.classList.add("status-recusado");
         }
@@ -153,7 +218,6 @@ function exibirSolicitacoes(
             status
         );
 
-        // Link para os detalhes do objeto.
         if (objeto) {
             const linkDetalhes =
                 document.createElement("a");
@@ -166,6 +230,58 @@ function exibirSolicitacoes(
                 `detalhes.html?id=${encodeURIComponent(objeto.id)}`;
 
             card.appendChild(linkDetalhes);
+        }
+
+        // Somente docentes podem aprovar ou recusar.
+        if (
+            podeGerenciar &&
+            valorStatus === "pendente"
+        ) {
+            const acoes = document.createElement("div");
+
+            acoes.classList.add("acoes-solicitacao");
+
+            const botaoAprovar =
+                document.createElement("button");
+
+            botaoAprovar.type = "button";
+            botaoAprovar.textContent = "Aprovar";
+
+            const botaoRecusar =
+                document.createElement("button");
+
+            botaoRecusar.type = "button";
+            botaoRecusar.textContent = "Recusar";
+
+            botaoRecusar.classList.add("botao-recusar");
+
+            const botoes = [
+                botaoAprovar,
+                botaoRecusar
+            ];
+
+            botaoAprovar.addEventListener("click", () => {
+                alterarStatusSolicitacao(
+                    solicitacao.id,
+                    "aprovada",
+                    botoes
+                );
+            });
+
+            botaoRecusar.addEventListener("click", () => {
+                alterarStatusSolicitacao(
+                    solicitacao.id,
+                    "recusada",
+                    botoes
+                );
+            });
+
+            acoes.append(
+                botaoAprovar,
+                botaoRecusar
+            );
+
+            card.appendChild(acoes);
         }
 
         listaSolicitacoes.appendChild(card);

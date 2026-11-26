@@ -17,7 +17,7 @@ let dadosCarregados = false;
 
 // Carrega os dados diretamente da API.
 async function carregarDados() {
-    resultadosBusca.textContent = "Carregando dados...";
+    resultadosBusca.textContent = "";
     botaoBusca.disabled = true;
     dadosCarregados = false;
 
@@ -53,8 +53,8 @@ async function carregarDados() {
         dadosCarregados = true;
         botaoBusca.disabled = false;
 
-        resultadosBusca.textContent =
-            "Informe os filtros e clique em Buscar objeto.";
+        // Não exibe mensagem inicial após carregar os dados.
+        resultadosBusca.textContent = "";
 
     } catch (erro) {
         console.error("Erro ao carregar dados:", erro);

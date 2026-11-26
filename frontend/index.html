@@ -4,59 +4,205 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Achados e Perdidos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achados e Perdidos | IFPE Campus Palmares</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/inicio.css">
+
+    <style>
+        .cabecalho {
+            background: linear-gradient(135deg, #C5EBD1, #DDF3E3);
+            border-bottom: 2px solid #B5DFC2;
+            padding: 28px 5%;
+        }
+
+        .cabecalho-conteudo {
+            max-width: 1180px;
+            margin: auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 75px;
+        }
+
+        .marca {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 2px;
+        }
+
+        .marca h1 {
+            color: #168C4A;
+            font-size: clamp(1.8rem, 4vw, 2.7rem);
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .marca p {
+            color: #527A60;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            margin: 3px 0 0;
+        }
+
+        .botao-entrar {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+        }
+
+        .botao-entrar:hover {
+            transform: translateY(calc(-50% - 2px));
+        }
+
+        @media (max-width: 650px) {
+            .cabecalho-conteudo {
+                flex-direction: column;
+                gap: 18px;
+            }
+
+            .botao-entrar {
+                position: static;
+                transform: none;
+                width: 100%;
+            }
+
+            .botao-entrar:hover {
+                transform: translateY(-2px);
+            }
+
+            .marca h1 {
+                font-size: 1.7rem;
+            }
+
+            .marca p {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
 </head>
 
-<body>
-    <header>
-        <h1>Achados e Perdidos</h1>
+<body class="pagina-inicial">
+
+    <header class="cabecalho">
+        <div class="cabecalho-conteudo">
+
+            <div class="marca">
+                <h1>ACHADOS E PERDIDOS</h1>
+                <p>IFPE — CAMPUS PALMARES</p>
+            </div>
+
+            <a href="pages/login.html" class="botao-entrar">
+                Entrar na conta
+            </a>
+
+        </div>
     </header>
 
-    <main>
-        <!-- Apresentação -->
-        <section class="secao-inicial">
-            <h2>Olá!</h2>
+    <main class="inicio">
+
+        <section class="apresentacao">
+
+            <span class="etiqueta">IFPE CAMPUS PALMARES</span>
+
+            <h2>Encontrou ou perdeu algo?</h2>
 
             <p>
-                Encontre seu objeto perdido ou cadastre
-                um objeto que você encontrou.
+                Estamos aqui para ajudar você a encontrar seus objetos
+                ou devolver aquilo que alguém está procurando.
             </p>
 
-            <div class="acoes-iniciais">
-                <a href="pages/busca.html" class="botao">
-                    Perdi Um Objeto
+            <div class="acoes-principais">
+
+                <a href="pages/busca.html" class="cartao-acao">
+                    <span class="icone-acao">🔍</span>
+
+                    <span class="texto-acao">
+                        <strong>Perdi um objeto</strong>
+                        <small>Consulte os objetos encontrados no campus.</small>
+                    </span>
+
+                    <span class="seta-acao">→</span>
                 </a>
 
-                <a href="pages/cadastro.html" class="botao">
-                    Encontrei Um Objeto
+                <a href="pages/cadastro.html" class="cartao-acao">
+                    <span class="icone-acao">📦</span>
+
+                    <span class="texto-acao">
+                        <strong>Encontrei um objeto</strong>
+                        <small>Cadastre o item para ajudar a encontrar seu dono.</small>
+                    </span>
+
+                    <span class="seta-acao">→</span>
                 </a>
 
-                <a href="pages/solicitacoes.html"
-                   class="botao botao-secundario">
-                    Ver solicitações
-                </a>
             </div>
+
         </section>
 
-        <!-- Objetos cadastrados -->
-        <section>
-            <h2>Objetos encontrados recentemente</h2>
+        <section class="area-gerenciamento">
+
+            <div class="titulo-secao">
+                <span class="etiqueta">ÁREA DE GERENCIAMENTO</span>
+
+                <h2>Cadastros e solicitações</h2>
+
+                <p>
+                    Acesse as opções de cadastro e acompanhamento do sistema.
+                </p>
+            </div>
+
+            <div class="acoes-gerenciamento">
+
+                <a href="pages/usuarios.html" class="cartao-gerenciamento">
+                    <span class="icone-gerenciamento">👥</span>
+                    <strong>Cadastrar aluno ou docente</strong>
+                    <small>Registrar usuários no sistema.</small>
+                </a>
+
+                <a href="pages/solicitacoes.html" class="cartao-gerenciamento">
+                    <span class="icone-gerenciamento">📋</span>
+                    <strong>Ver solicitações</strong>
+                    <small>Acompanhar pedidos de devolução.</small>
+                </a>
+
+            </div>
+
+        </section>
+
+        <section class="secao-objetos">
+
+            <div class="titulo-secao">
+                <span class="etiqueta">ATUALIZAÇÕES</span>
+
+                <h2>Objetos encontrados recentemente</h2>
+
+                <p>
+                    Confira os últimos itens cadastrados no campus.
+                </p>
+            </div>
 
             <div id="listaObjetos">
                 <p>Carregando objetos...</p>
             </div>
+
         </section>
+
     </main>
 
-    <!-- Comunicação com a API -->
+    <footer class="rodape">
+        <p>Achados e Perdidos — IFPE Campus Palmares</p>
+    </footer>
+
     <script src="js/api.js"></script>
-
-    <!-- Carregamento dos objetos -->
     <script src="js/index.js"></script>
-</body>
 
+</body>
 </html>

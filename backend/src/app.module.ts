@@ -1,10 +1,13 @@
-
 import { Module, Logger } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+
+import { AuthModule } from './auth/auth.module.js';
+import { JwtAuthGuard } from './auth/jwt-auth.guard.js';
 
 import { ObjetosModule } from './objetos/objetos.module.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
@@ -21,6 +24,7 @@ const logger = new Logger('DatabaseConfig');
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
@@ -59,6 +63,8 @@ const logger = new Logger('DatabaseConfig');
         };
       },
     }),
+
+    AuthModule,
     ObjetosModule,
     UsuariosModule,
     DevolucoesModule,
@@ -70,6 +76,12 @@ const logger = new Logger('DatabaseConfig');
     ProcessamentoParaleloModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

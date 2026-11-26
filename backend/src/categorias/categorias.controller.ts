@@ -14,13 +14,16 @@ import { CriarCategoriaDto } from './dto/criar-categoria.dto.js';
 import { AtualizarCategoriaDto } from './dto/atualizar-categoria.dto.js';
 import { CategoriaEntity } from './entities/categoria.entity.js';
 import { CategoriaRespostaDto } from './dto/categoria-resposta.dto.js';
+import { Public } from '../auth/public.decorator.js';
 
 @Controller('categorias')
 export class CategoriasController {
-  constructor(private readonly categoriasService: CategoriasService) { }
+  constructor(
+    private readonly categoriasService: CategoriasService,
+  ) {}
 
   private paraResposta(
-    categoria: CategoriaEntity
+    categoria: CategoriaEntity,
   ): CategoriaRespostaDto {
     return {
       id: categoria.id,
@@ -31,26 +34,25 @@ export class CategoriasController {
 
   @Post()
   async criar(
-    @Body() dados: CriarCategoriaDto
+    @Body() dados: CriarCategoriaDto,
   ): Promise<CategoriaRespostaDto> {
     const novaCategoria = await this.categoriasService.criar(dados);
-
     return this.paraResposta(novaCategoria);
   }
 
+  @Public()
   @Get()
   async listar(): Promise<CategoriaRespostaDto[]> {
     const categorias = await this.categoriasService.listar();
-
     return categorias.map((categoria) => this.paraResposta(categoria));
   }
 
+  @Public()
   @Get(':id')
   async buscarPorId(
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<CategoriaRespostaDto> {
     const categoria = await this.categoriasService.buscarPorId(id);
-
     return this.paraResposta(categoria);
   }
 
@@ -60,7 +62,6 @@ export class CategoriasController {
     @Body() dados: AtualizarCategoriaDto,
   ): Promise<CategoriaRespostaDto> {
     const categoriaAtualizada = await this.categoriasService.atualizar(id, dados);
-
     return this.paraResposta(categoriaAtualizada);
   }
 

@@ -16,6 +16,7 @@ import { CriarSolicitacaoDto } from './dto/criar-solicitacao.dto.js';
 import { AtualizarSolicitacaoDto } from './dto/atualizar-solicitacao.dto.js';
 import { SolicitacaoRespostaDto } from './dto/solicitacao-resposta.dto.js';
 import type { Solicitacao } from './models/solicitacao/solicitacao.interface.js';
+import { Roles } from '../auth/roles.decorator.js';
 
 @Controller('solicitacoes')
 export class SolicitacaoController {
@@ -67,6 +68,7 @@ export class SolicitacaoController {
     return this.paraResposta(solicitacao);
   }
 
+  @Roles('docente')
   @Patch(':id')
   async atualizar(
     @Param('id', ParseIntPipe) id: number,
