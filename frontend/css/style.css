@@ -759,11 +759,64 @@ button:disabled {
     .botaoUpload {
         transition: none;
     }
+<<<<<<< Updated upstream
 
     button:hover,
     .botao:hover,
     .card-objeto:hover,
     #formCadastro .areaUpload:hover .botaoUpload {
         transform: none;
+=======
+}
+
+
+/* ==========================================
+   20. ESPAÇAMENTO DAS PÁGINAS INTERNAS
+   ========================================== */
+
+/* Mantém a largura das páginas de formulário sob controle,
+   sem alterar o layout específico da página inicial. */
+body > main:not(.inicio) {
+    width: min(100% - 40px, 1000px);
+    margin: 32px auto 60px;
+}
+
+body > main:not(.inicio) > section {
+    background: var(--branco);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+    padding: 32px;
+}
+
+body > main:not(.inicio) > section > h2 {
+    margin-bottom: 8px;
+}
+
+body > main:not(.inicio) > section > p {
+    margin-bottom: 20px;
+    color: var(--texto-secundario);
+}
+
+body > main:not(.inicio) #formBusca,
+body > main:not(.inicio) #formCadastro,
+body > main:not(.inicio) #formDevolucao {
+    width: 100%;
+    min-width: 0;
+}
+
+body > main:not(.inicio) #resultadosBusca {
+    margin-top: 24px;
+}
+
+@media (max-width: 600px) {
+    body > main:not(.inicio) {
+        width: calc(100% - 30px);
+        margin: 20px auto 40px;
+    }
+
+    body > main:not(.inicio) > section {
+        padding: 20px 16px;
+>>>>>>> Stashed changes
     }
 }
