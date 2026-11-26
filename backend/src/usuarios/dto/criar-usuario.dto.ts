@@ -1,4 +1,3 @@
-
 import {
   IsEmail,
   IsIn,
@@ -6,6 +5,7 @@ import {
   IsString,
   Matches,
   MaxLength,
+  MinLength,
 } from 'class-validator';
 
 export class CriarUsuarioDto {
@@ -23,4 +23,12 @@ export class CriarUsuarioDto {
 
   @IsIn(['aluno', 'docente'])
   tipo: 'aluno' | 'docente';
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8, {
+    message: 'A senha deve ter pelo menos 8 caracteres',
+  })
+  @MaxLength(100)
+  senha: string;
 }

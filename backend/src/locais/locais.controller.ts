@@ -14,6 +14,7 @@ import { LocalEntity } from './entities/local.entity.js';
 import { CriarLocalDto } from './dto/criar-local.dto.js';
 import { AtualizarLocalDto } from './dto/atualizar-local.dto.js';
 import { LocalRespostaDto } from './dto/local-resposta.dto.js';
+import { Public } from '../auth/public.decorator.js';
 
 @Controller('locais')
 export class LocaisController {
@@ -21,9 +22,7 @@ export class LocaisController {
     private readonly locaisService: LocaisService,
   ) {}
 
-  private paraResposta(
-    local: LocalEntity
-  ): LocalRespostaDto {
+  private paraResposta(local: LocalEntity): LocalRespostaDto {
     return {
       id: local.id,
       nome: local.nome,
@@ -31,6 +30,7 @@ export class LocaisController {
     };
   }
 
+  @Public()
   @Get()
   listar(): Promise<LocalRespostaDto[]> {
     return this.locaisService.listar().then((locais) =>
@@ -38,6 +38,7 @@ export class LocaisController {
     );
   }
 
+  @Public()
   @Get(':id')
   buscarPorId(
     @Param('id', ParseIntPipe) id: number,

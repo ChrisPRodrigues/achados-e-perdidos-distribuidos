@@ -1,0 +1,143 @@
+
+/* ========================================
+   ESTILO EXCLUSIVO DA PÁGINA INICIAL
+======================================== */
+
+.pagina-inicial .apresentacao {
+    padding: 42px 32px;
+}
+
+.pagina-inicial .acoes-principais {
+    gap: 24px;
+    margin-top: 32px;
+}
+
+.pagina-inicial .cartao-acao {
+    min-height: 135px;
+    padding: 28px;
+    gap: 20px;
+    border: 2px solid #D5EBDD;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(22, 100, 55, 0.07);
+    transition: transform 0.2s ease, box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.pagina-inicial .cartao-acao:hover {
+    transform: translateY(-5px);
+    border-color: #168C4A;
+    box-shadow: 0 10px 22px rgba(22, 100, 55, 0.14);
+}
+
+.pagina-inicial .icone-acao {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    background: #E3F4E9;
+    font-size: 30px;
+}
+
+.pagina-inicial .texto-acao strong {
+    display: block;
+    color: #176B3B;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.pagina-inicial .texto-acao small {
+    font-size: 0.98rem;
+    line-height: 1.5;
+}
+
+.pagina-inicial .seta-acao {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #168C4A;
+}
+
+/* Botões da área de gerenciamento */
+
+.pagina-inicial .acoes-gerenciamento {
+    gap: 24px;
+    margin-top: 28px;
+}
+
+.pagina-inicial .cartao-gerenciamento {
+    min-height: 175px;
+    padding: 28px 24px;
+    border: 2px solid #D5EBDD;
+    border-radius: 16px;
+    background: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(22, 100, 55, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.pagina-inicial .cartao-gerenciamento:hover {
+    transform: translateY(-5px);
+    border-color: #168C4A;
+    box-shadow: 0 10px 22px rgba(22, 100, 55, 0.13);
+}
+
+.pagina-inicial .icone-gerenciamento {
+    font-size: 34px;
+    margin-bottom: 12px;
+}
+
+.pagina-inicial .cartao-gerenciamento strong {
+    font-size: 1.12rem;
+    color: #176B3B;
+}
+
+.pagina-inicial .cartao-gerenciamento small {
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Botão de entrar na conta */
+
+.pagina-inicial .botao-entrar {
+    padding: 15px 25px;
+    min-height: 48px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(22, 100, 55, 0.15);
+}
+
+/* Ajustes para celular */
+
+@media (max-width: 650px) {
+    .pagina-inicial .apresentacao {
+        padding: 30px 18px;
+    }
+
+    .pagina-inicial .cartao-acao {
+        min-height: 120px;
+        padding: 20px 16px;
+        gap: 14px;
+    }
+
+    .pagina-inicial .icone-acao {
+        width: 52px;
+        height: 52px;
+        min-width: 52px;
+        font-size: 25px;
+    }
+
+    .pagina-inicial .texto-acao strong {
+        font-size: 1.05rem;
+    }
+
+    .pagina-inicial .texto-acao small {
+        font-size: 0.88rem;
+    }
+
+    .pagina-inicial .cartao-gerenciamento {
+        min-height: 145px;
+    }
+}

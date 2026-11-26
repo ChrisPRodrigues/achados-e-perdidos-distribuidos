@@ -3,9 +3,11 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryFailedError, Repository } from 'typeorm';
+import { hash } from 'bcryptjs';
 
 import { UsuarioEntity } from './entities/usuario.entity.js';
 
@@ -15,6 +17,7 @@ type DadosUsuario = {
   nome: string;
   email: string;
   tipo: TipoUsuario;
+  senha: string;
 };
 
 @Injectable()
@@ -25,19 +28,32 @@ export class UsuariosService {
   ) {}
 
   listar(): Promise<UsuarioEntity[]> {
-    return this.usuariosRepository.find();
+    return this.usuariosRepository.find({
+      order: { id: 'ASC' },
+    });
   }
 
   async cadastrar(dados: DadosUsuario): Promise<UsuarioEntity> {
+    const email = dados.email.toLowerCase().trim();
+
     const emailExistente = await this.usuariosRepository.findOneBy({
-      email: dados.email,
+      email,
     });
 
     if (emailExistente) {
       throw new ConflictException('Já existe um usuário com esse e-mail');
     }
 
-    const novoUsuario = this.usuariosRepository.create(dados);
+    const senhaHash = await hash(dados.senha, 12);
+
+    const novoUsuario = this.usuariosRepository.create({
+      nome: dados.nome.trim(),
+      email,
+      tipo: dados.tipo,
+      senha_hash: senhaHash,
+      status: dados.tipo === 'docente' ? 'pendente' : 'ativo',
+    });
+
     return this.usuariosRepository.save(novoUsuario);
   }
 
@@ -51,20 +67,57 @@ export class UsuariosService {
     return usuario;
   }
 
+  async atualizarStatus(
+    id: number,
+    status: string,
+  ): Promise<UsuarioEntity> {
+    if (!['ativo', 'rejeitado'].includes(status)) {
+      throw new BadRequestException(
+        'Status inválido. Utilize ativo ou rejeitado.',
+      );
+    }
+
+    const usuario = await this.buscarPorId(id);
+
+    if (usuario.tipo !== 'docente') {
+      throw new BadRequestException(
+        'Somente cadastros de docentes podem ser aprovados ou rejeitados.',
+      );
+    }
+
+    if (usuario.status !== 'pendente') {
+      throw new ConflictException(
+        'Este cadastro não está aguardando aprovação.',
+      );
+    }
+
+    usuario.status = status as 'ativo' | 'rejeitado';
+
+    return this.usuariosRepository.save(usuario);
+  }
+
   async atualizar(
     id: number,
-    dados: Partial<DadosUsuario>,
+    dados: Partial<{
+      nome: string;
+      email: string;
+      tipo: TipoUsuario;
+    }>,
   ): Promise<UsuarioEntity> {
     const usuario = await this.buscarPorId(id);
 
     if (dados.email && dados.email !== usuario.email) {
+      const email = dados.email.toLowerCase().trim();
+
       const emailExistente = await this.usuariosRepository.findOneBy({
-        email: dados.email,
+        email,
       });
 
       if (emailExistente) {
         throw new ConflictException('Já existe um usuário com esse e-mail');
       }
+
+      dados.email = email;
     }
 
     Object.assign(usuario, dados);

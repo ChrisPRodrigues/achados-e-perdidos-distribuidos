@@ -1,7 +1,43 @@
 
-// Endereço centralizado do back-end
 const API_URL =
-    "https://achados-e-perdidos-distribuidos.onrender.com";
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+        ? "http://localhost:3000"
+        : "https://achados-e-perdidos-distribuidos.onrender.com";
+
+/* ==========================================
+   AUTENTICAÇÃO
+   ========================================== */
+
+function salvarSessao(dados) {
+    sessionStorage.setItem("access_token", dados.access_token);
+    sessionStorage.setItem("usuario", JSON.stringify(dados.usuario));
+}
+
+function obterToken() {
+    return sessionStorage.getItem("access_token");
+}
+
+function obterUsuarioLogado() {
+    const usuario = sessionStorage.getItem("usuario");
+    return usuario ? JSON.parse(usuario) : null;
+}
+
+function encerrarSessao() {
+    sessionStorage.removeItem("access_token");
+    sessionStorage.removeItem("usuario");
+}
+
+async function fazerLogin(email, senha) {
+    const resultado = await requisicaoAPI(
+        "/auth/login",
+        "POST",
+        { email, senha }
+    );
+
+    salvarSessao(resultado);
+    return resultado;
+}
 
 /* ==========================================
    REQUISIÇÃO GENÉRICA
@@ -19,10 +55,14 @@ async function requisicaoAPI(
         }
     };
 
-    if (dados !== null) {
-        configuracao.headers["Content-Type"] =
-            "application/json";
+    const token = obterToken();
 
+    if (token) {
+        configuracao.headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    if (dados !== null) {
+        configuracao.headers["Content-Type"] = "application/json";
         configuracao.body = JSON.stringify(dados);
     }
 
@@ -77,17 +117,11 @@ function listarObjetos() {
 }
 
 function buscarObjetoPorId(id) {
-    return requisicaoAPI(
-        `/objetos/${encodeURIComponent(id)}`
-    );
+    return requisicaoAPI(`/objetos/${encodeURIComponent(id)}`);
 }
 
 function cadastrarObjeto(dados) {
-    return requisicaoAPI(
-        "/objetos",
-        "POST",
-        dados
-    );
+    return requisicaoAPI("/objetos", "POST", dados);
 }
 
 /* ==========================================
@@ -114,6 +148,10 @@ function listarUsuarios() {
     return requisicaoAPI("/usuarios");
 }
 
+function cadastrarUsuario(dados) {
+    return requisicaoAPI("/usuarios", "POST", dados);
+}
+
 /* ==========================================
    SOLICITAÇÕES
    ========================================== */
@@ -123,9 +161,13 @@ function listarSolicitacoes() {
 }
 
 function cadastrarSolicitacao(dados) {
+    return requisicaoAPI("/solicitacoes", "POST", dados);
+}
+
+function atualizarSolicitacao(id, dados) {
     return requisicaoAPI(
-        "/solicitacoes",
-        "POST",
+        `/solicitacoes/${encodeURIComponent(id)}`,
+        "PATCH",
         dados
     );
 }
